@@ -8,6 +8,7 @@ import os
 def show_images(images):
     for image_name in images.keys():
         plt.figure()
+        plt.title(image_name, fontsize=10)
         plt.imshow(images[image_name])
         plt.show()
 
@@ -36,6 +37,7 @@ def read_images2(directory, ext):
 
 
 def jpeg_compress_images(directory, ext, out_dir, quality_rates):
+    compressed_images = dict()
     images = read_images2(directory, ext)
     fig, axis = plt.subplots(len(images), len(quality_rates))
     i = 0
@@ -47,14 +49,16 @@ def jpeg_compress_images(directory, ext, out_dir, quality_rates):
             compress_image_path = out_dir + "/" + compressed_image_name
             images[image_name].save(compress_image_path, quality=quality_rate)
             image = plt.imread(compress_image_path)
+            compressed_images[compressed_image_name] = image
             axis[i, j].imshow(image)
-            axis[i, j].set_title(compressed_image_name, fontsize=10)
-
+            axis[i, j].set_title(compressed_image_name, fontsize=5)
             j += 1
 
         i += 1
 
     plt.show()
+
+    return compressed_images
 
 
 def encoder(image, params):
@@ -73,10 +77,12 @@ def main():
     JPEG_QUALITY_RATES = [25, 50, 75]
 
     original_images = dict()
+    compressed_images = dict()
 
-    original_images = read_images(ORIGINAL_IMAGE_DIRECTORY, ORIGINAL_IMAGE_EXTENSION)
+    #original_images = read_images(ORIGINAL_IMAGE_DIRECTORY, ORIGINAL_IMAGE_EXTENSION)
     #show_images(original_images)
-    jpeg_compress_images(ORIGINAL_IMAGE_DIRECTORY, ORIGINAL_IMAGE_EXTENSION, COMPRESSED_IMAGE_DIRECTORY, JPEG_QUALITY_RATES)
+    #compressed_images = jpeg_compress_images(ORIGINAL_IMAGE_DIRECTORY, ORIGINAL_IMAGE_EXTENSION, COMPRESSED_IMAGE_DIRECTORY, JPEG_QUALITY_RATES)
+    #show_images(compressed_images)
 
 
 if __name__ == '__main__':
