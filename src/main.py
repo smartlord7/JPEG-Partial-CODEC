@@ -1,6 +1,8 @@
 import matplotlib.pyplot as plt
 import matplotlib.colors as clr
 import numpy as np
+from matplotlib import cm
+from matplotlib.colors import ListedColormap, LinearSegmentedColormap
 from PIL import Image
 import os
 
@@ -8,7 +10,6 @@ import os
 def show_images(images):
     for image_name in images.keys():
         plt.figure()
-        plt.title(image_name, fontsize=10)
         plt.imshow(images[image_name])
         plt.show()
 
@@ -36,8 +37,30 @@ def read_images2(directory, ext):
     return images
 
 
+def separate_rgb():
+    img = Image.open('C:/Users/Ventura/PycharmProjects/pythonProject/original_img/barn_mountains.bmp')
+    array = np.array(img)
+    r, g, b = array.copy(), array.copy(), array.copy()
+    r[:, :, (1, 2)] = 0
+    g[:, :, (0, 2)] = 0
+    b[:, :, (0, 1)] = 0
+    img_rgb = np.concatenate((r, g, b))
+    plt.figure(figsize=(30, 30))
+    plt.imshow(img_rgb)
+    plt.show()
+    transformer(img_rgb)
+
+def transformer(rgb):
+    tform= np.array([[.299, .587, .114], [-.168736, -.331264, .5], [.5, -.418688, -.081312]])
+    ycbcr = rgb.dot(tform.T)
+    ycbcr[:, :, [1, 2]] += 128
+    #np.uint8(ycbcr)
+    plt.figure(figsize=(30, 30))
+    plt.imshow(ycbcr.astype(np.uint8))
+    plt.show()
+
+
 def jpeg_compress_images(directory, ext, out_dir, quality_rates):
-    compressed_images = dict()
     images = read_images2(directory, ext)
     fig, axis = plt.subplots(len(images), len(quality_rates))
     i = 0
@@ -49,16 +72,14 @@ def jpeg_compress_images(directory, ext, out_dir, quality_rates):
             compress_image_path = out_dir + "/" + compressed_image_name
             images[image_name].save(compress_image_path, quality=quality_rate)
             image = plt.imread(compress_image_path)
-            compressed_images[compressed_image_name] = image
             axis[i, j].imshow(image)
-            axis[i, j].set_title(compressed_image_name, fontsize=5)
+            axis[i, j].set_title(compressed_image_name, fontsize=10)
+
             j += 1
 
         i += 1
 
     plt.show()
-
-    return compressed_images
 
 
 def encoder(image, params):
@@ -77,12 +98,11 @@ def main():
     JPEG_QUALITY_RATES = [25, 50, 75]
 
     original_images = dict()
-    compressed_images = dict()
 
-    #original_images = read_images(ORIGINAL_IMAGE_DIRECTORY, ORIGINAL_IMAGE_EXTENSION)
-    #show_images(original_images)
-    #compressed_images = jpeg_compress_images(ORIGINAL_IMAGE_DIRECTORY, ORIGINAL_IMAGE_EXTENSION, COMPRESSED_IMAGE_DIRECTORY, JPEG_QUALITY_RATES)
-    #show_images(compressed_images)
+    original_images = read_images(ORIGINAL_IMAGE_DIRECTORY, ORIGINAL_IMAGE_EXTENSION)
+    # show_images(original_images)
+    # jpeg_compress_images(ORIGINAL_IMAGE_DIRECTORY, ORIGINAL_IMAGE_EXTENSION, COMPRESSED_IMAGE_DIRECTORY, JPEG_QUALITY_RATES)
+    separate_rgb()
 
 
 if __name__ == '__main__':
