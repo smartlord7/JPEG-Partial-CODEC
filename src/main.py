@@ -1,7 +1,6 @@
 import matplotlib.pyplot as plt
 import matplotlib.colors as clr
 import numpy as np
-from matplotlib import cm
 from matplotlib.colors import ListedColormap, LinearSegmentedColormap
 from PIL import Image
 import os
@@ -37,27 +36,37 @@ def read_images2(directory, ext):
     return images
 
 
-def separate_rgb():
-    img = Image.open('C:/Users/Ventura/PycharmProjects/pythonProject/original_img/barn_mountains.bmp')
-    array = np.array(img)
-    r, g, b = array.copy(), array.copy(), array.copy()
+def separate_rgb(img):
+    r, g, b = img.copy(), img.copy(), img.copy()
     r[:, :, (1, 2)] = 0
     g[:, :, (0, 2)] = 0
     b[:, :, (0, 1)] = 0
     img_rgb = np.concatenate((r, g, b))
-    plt.figure(figsize=(30, 30))
+    plt.figure()
     plt.imshow(img_rgb)
     plt.show()
-    transformer(img_rgb)
 
-def transformer(rgb):
-    tform= np.array([[.299, .587, .114], [-.168736, -.331264, .5], [.5, -.418688, -.081312]])
-    ycbcr = rgb.dot(tform.T)
-    ycbcr[:, :, [1, 2]] += 128
-    #np.uint8(ycbcr)
-    plt.figure(figsize=(30, 30))
-    plt.imshow(ycbcr.astype(np.uint8))
+    return img_rgb
+
+
+def float_to_uint8(matrix):
+    matrix = matrix.round()
+    matrix[matrix > 255] = 255
+    matrix[matrix < 0] = 0
+    matrix = matrix.astype(np.uint8)
+
+    return matrix
+
+
+def rgb_to_y_cb_cr(rgb, y_cb_cr_matrix):
+    y_cb_cr = rgb.dot(y_cb_cr_matrix.T)
+    y_cb_cr[:, :, [1, 2]] += 128
+    y_cb_cr = float_to_uint8(y_cb_cr)
+    plt.figure()
+    plt.imshow(y_cb_cr)
     plt.show()
+
+    return y_cb_cr
 
 
 def jpeg_compress_images(directory, ext, out_dir, quality_rates):
@@ -82,6 +91,35 @@ def jpeg_compress_images(directory, ext, out_dir, quality_rates):
     plt.show()
 
 
+def generate_linear_colormap(color_list):
+    colormap = clr.LinearSegmentedColormap('cmap', color_list, N=256)
+
+    return colormap
+
+
+def apply_padding(image, wanted_rows, wanted_cols):
+    n_rows = image.shape[0]
+    n_cols = image.shape[1]
+    padded_image = np.copy(image)
+
+    remaining = n_rows % wanted_rows
+
+    if remaining != 0:
+        last_row = n_rows[n_rows - 1]
+        rows_to_add = np.repeat([last_row], remaining, axis=0)
+        padded_image = np.vstack((image, rows_to_add))
+
+    remaining = n_cols % wanted_cols
+
+    if n_cols % wanted_cols != 0:
+        last_col = n_rows[:, : n_cols - 1]
+        cols_to_add = np.repeat(last_col, axis=1)
+
+        padded_image = np.insert(image, n_cols, last_col, axis=1)
+
+    return padded_image
+
+
 def encoder(image, params):
     pass
 
@@ -94,15 +132,19 @@ def main():
     CWD = os.getcwd()
     ORIGINAL_IMAGE_DIRECTORY = CWD + '/original_img/'
     ORIGINAL_IMAGE_EXTENSION = '.bmp'
-    COMPRESSED_IMAGE_DIRECTORY = CWD + "\\jpeg_compressed_img"
+    COMPRESSED_IMAGE_DIRECTORY = CWD + '\\jpeg_compressed_img'
     JPEG_QUALITY_RATES = [25, 50, 75]
-
-    original_images = dict()
+    Y_CB_CR_MATRIX = np.array([[0.299, 0.587, 0.114], [-0.168736, -0.331264, 0.5], [0.5, -0.418688, -0.081312]])
+    Y_CB_CR_MATRIX_INVERSE = np.linalg.inv(Y_CB_CR_MATRIX)
 
     original_images = read_images(ORIGINAL_IMAGE_DIRECTORY, ORIGINAL_IMAGE_EXTENSION)
-    # show_images(original_images)
-    # jpeg_compress_images(ORIGINAL_IMAGE_DIRECTORY, ORIGINAL_IMAGE_EXTENSION, COMPRESSED_IMAGE_DIRECTORY, JPEG_QUALITY_RATES)
-    separate_rgb()
+    #show_images(original_images)
+    #compressed_images = jpeg_compress_images(ORIGINAL_IMAGE_DIRECTORY, ORIGINAL_IMAGE_EXTENSION, COMPRESSED_IMAGE_DIRECTORY, JPEG_QUALITY_RATES)
+    #show_images(compressed_images)
+    img_rgb = separate_rgb(original_images["barn_mountains.bmp"])
+    y_cb_cr = rgb_to_y_cb_cr(img_rgb, Y_CB_CR_MATRIX)
+
+    #cmap = generate_linear_colormap([(1, 0, 0), (1, 0, 0)])
 
 
 if __name__ == '__main__':
