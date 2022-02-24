@@ -83,7 +83,6 @@ def float_to_uint8(matrix):
 def rgb_to_y_cb_cr(rgb, y_cb_cr_matrix):
     y_cb_cr = rgb.dot(y_cb_cr_matrix.T)
     y_cb_cr[:, :, [1, 2]] += 128
-    y_cb_cr = float_to_uint8(y_cb_cr)
     plt.figure()
 
     plt.imshow(np.concatenate((y_cb_cr[:, :, 0], y_cb_cr[:, :, 1], y_cb_cr[:, :, 2])))
@@ -139,7 +138,6 @@ def plot_image_colormap(image_channel, colormap):
 def apply_padding(image, wanted_rows, wanted_cols):
     n_rows = image.shape[0]
     n_cols = image.shape[1]
-    padded_image = np.copy(image)
 
     remaining = n_rows % wanted_rows
 
@@ -147,24 +145,74 @@ def apply_padding(image, wanted_rows, wanted_cols):
         remaining = wanted_rows - remaining
         last_row = image[n_rows - 1]
         rows_to_add = np.repeat([last_row], remaining, axis=0)
-        padded_image = np.vstack((padded_image, rows_to_add))
+        image = np.vstack((image, rows_to_add))
 
     remaining = n_cols % wanted_cols
 
     if remaining != 0:
         remaining = wanted_cols - remaining
-        last_col = padded_image[:, [-1]]
-        padded_image = np.hstack((padded_image, np.tile(last_col, (remaining, 1))))
+        last_col = image[:, [-1]]
+        image = np.hstack((image, np.tile(last_col, (remaining, 1))))
+
+    return image
+
+
+def reverse_padding(padded_image, original_rows, original_cols):
+    n_rows = padded_image.shape[0]
+    n_cols = padded_image.shape[1]
+
+    rows_to_delete = n_rows - original_rows
+    rows_to_delete = [i for i in range(n_rows - rows_to_delete - 1, n_rows - 1)]
+
+    if rows_to_delete != 0:
+        padded_image = np.delete(padded_image, rows_to_delete, axis=0)
+
+    cols_to_delete = n_cols - original_cols
+    cols_to_delete = [i for i in range(n_cols - cols_to_delete - 1, n_cols - 1)]
+
+    if cols_to_delete != 0:
+        padded_image = np.delete(padded_image, cols_to_delete, axis=1)
 
     return padded_image
 
 
-def encoder(image, params):
-    pass
+def encoder(image):
+    Y_CB_CR_MATRIX = np.array([[0.299, 0.587, 0.114], [-0.168736, -0.331264, 0.5], [0.5, -0.418688, -0.081312]])
+    GREY_CMAP_LIST = [(0, 0, 0), (1, 1, 1)]
+    RED_CMAP_LIST = [(0, 0, 0), (1, 0, 0)]
+    GREEN_CMAP_LIST = [(0, 0, 0), (0, 1, 0)]
+    BLUEE_CMAP_LIST = [(0, 0, 0), (0, 0, 1)]
+
+    grey_cmap = generate_linear_colormap(GREY_CMAP_LIST)
+    red_cmap = generate_linear_colormap(RED_CMAP_LIST)
+    green_cmap = generate_linear_colormap(GREEN_CMAP_LIST)
+    blue_cmap = generate_linear_colormap(BLUEE_CMAP_LIST)
+    n_rows = image.shape[0]
+    n_cols = image.shape[1]
+
+    r, g, b = separate_rgb(image)
+    plot_image_colormap(r, red_cmap)
+    plot_image_colormap(g, green_cmap)
+    plot_image_colormap(b, blue_cmap)
+
+    padded_image = apply_padding(image, 32, 32)
+    show_images(padded_image)
+
+    y_cb_cr_image = rgb_to_y_cb_cr(image, Y_CB_CR_MATRIX)
+    show_images(y_cb_cr_image)
+    plot_image_colormap(y_cb_cr_image[:, :, 0], grey_cmap)
+    plot_image_colormap(y_cb_cr_image[:, :, 1], grey_cmap)
+    plot_image_colormap(y_cb_cr_image[:, :, 2], grey_cmap)
+
+    return n_rows, n_cols
 
 
-def decoder(encoded_image):
-    pass
+def decoder(encoded_image, n_rows, n_cols):
+    Y_CB_CR_MATRIX = np.array([[0.299, 0.587, 0.114], [-0.168736, -0.331264, 0.5], [0.5, -0.418688, -0.081312]])
+    Y_CB_CR_MATRIX_INVERSE = np.linalg.inv(Y_CB_CR_MATRIX)
+
+    rgb_image = rgb_to_y_cb_cr(encoded_image, Y_CB_CR_MATRIX_INVERSE)
+    unpadded_image = reverse_padding(rgb_image, n_rows, n_cols)
 
 
 def main():
@@ -176,29 +224,31 @@ def main():
     Y_CB_CR_MATRIX = np.array([[0.299, 0.587, 0.114], [-0.168736, -0.331264, 0.5], [0.5, -0.418688, -0.081312]])
     Y_CB_CR_MATRIX_INVERSE = np.linalg.inv(Y_CB_CR_MATRIX)
     RGB_MATRIX = np.array([[1, 0, 1.402], [1, -0.34414, -.71414], [1, 1.772, 0]])
-    GREY_CMAP_LIST = [(0, 0, 0), (0.5, 0.5, 0.5)]
+    GREY_CMAP_LIST = [(0, 0, 0), (1, 1, 1)]
     RED_CMAP_LIST = [(0, 0, 0), (1, 0, 0)]
     GREEN_CMAP_LIST = [(0, 0, 0), (0, 1, 0)]
     BLUEE_CMAP_LIST = [(0, 0, 0), (0, 0, 1)]
-
-    original_images = read_images(ORIGINAL_IMAGE_DIRECTORY, ORIGINAL_IMAGE_EXTENSION)
-    #show_images(original_images)
-    #compressed_images = jpeg_compress_images(ORIGINAL_IMAGE_DIRECTORY, ORIGINAL_IMAGE_EXTENSION, COMPRESSED_IMAGE_DIRECTORY, JPEG_QUALITY_RATES)
-    #show_images(compressed_images)
-    img = original_images["logo.bmp"]
-    #r, g, b = separate_rgb(img)
-    #joined_rgb = join_rgb(r, g, b)
-    #show_images(joined_rgb)
-    #padded_image = apply_padding(img, 16, 16)
-    #show_images(padded_image)
-
     grey_cmap = generate_linear_colormap(GREY_CMAP_LIST)
     red_cmap = generate_linear_colormap(RED_CMAP_LIST)
     green_cmap = generate_linear_colormap(GREEN_CMAP_LIST)
     blue_cmap = generate_linear_colormap(BLUEE_CMAP_LIST)
-    #plot_image_colormap(r, red_cmap)
-    #plot_image_colormap(g, green_cmap)
-    #plot_image_colormap(b, blue_cmap)
+
+    original_images = read_images(ORIGINAL_IMAGE_DIRECTORY, ORIGINAL_IMAGE_EXTENSION)
+    show_images(original_images)
+    jpeg_compress_images(ORIGINAL_IMAGE_DIRECTORY, ORIGINAL_IMAGE_EXTENSION, COMPRESSED_IMAGE_DIRECTORY, JPEG_QUALITY_RATES)
+    img = original_images["logo.bmp"]
+    n_rows = img.shape[0]
+    n_cols = img.shape[1]
+    r, g, b = separate_rgb(img)
+    joined_rgb = join_rgb(r, g, b)
+    show_images(joined_rgb)
+    plot_image_colormap(r, red_cmap)
+    plot_image_colormap(g, green_cmap)
+    plot_image_colormap(b, blue_cmap)
+    padded_image = apply_padding(img, 16, 16)
+    show_images(padded_image)
+    unpadded_image = reverse_padding(padded_image, n_rows, n_cols)
+    show_images(unpadded_image)
 
     y_cb_cr = rgb_to_y_cb_cr(original_images["peppers.bmp"], Y_CB_CR_MATRIX)
     plot_image_colormap(y_cb_cr[:, :, 0], grey_cmap)
