@@ -91,6 +91,14 @@ def rgb_to_y_cb_cr(rgb, y_cb_cr_matrix):
 
     return y_cb_cr
 
+def y_cb_cr_to_rgb(rgb_matrix,y_cb_cr):
+    rgb = float_to_uint8(y_cb_cr.dot(rgb_matrix.T))
+    rgb[:, :, [1, 2]] -= 128
+    rgb = float_to_uint8(rgb)
+    plt.imshow(rgb)
+    plt.show()
+
+    return np.uint8(rgb)
 
 def jpeg_compress_images(directory, ext, out_dir, quality_rates):
     images = read_images2(directory, ext)
@@ -164,6 +172,7 @@ def main():
     COMPRESSED_IMAGE_DIRECTORY = CWD + '\\jpeg_compressed_img'
     JPEG_QUALITY_RATES = [25, 50, 75]
     Y_CB_CR_MATRIX = np.array([[0.299, 0.587, 0.114], [-0.168736, -0.331264, 0.5], [0.5, -0.418688, -0.081312]])
+    RGB_MATRIX = np.array([[1, 0, 1.402], [1, -0.34414, -.71414], [1, 1.772, 0]])
     Y_CB_CR_MATRIX_INVERSE = np.linalg.inv(Y_CB_CR_MATRIX)
     GREY_CMAP_LIST = [(0, 0, 0), (0.5, 0.5, 0.5)]
     RED_CMAP_LIST = [(0, 0, 0), (1, 0, 0)]
@@ -178,8 +187,8 @@ def main():
     #r, g, b = separate_rgb(img)
     #joined_rgb = join_rgb(r, g, b)
     #show_images(joined_rgb)
-    padded_image = apply_padding(img, 16, 16)
-    show_images(padded_image)
+    #padded_image = apply_padding(img, 16, 16)
+    #show_images(padded_image)
 
     #grey_cmap = generate_linear_colormap(GREY_CMAP_LIST)
     #red_cmap = generate_linear_colormap(RED_CMAP_LIST)
@@ -189,8 +198,8 @@ def main():
     #plot_image_colormap(g, green_cmap)
     #plot_image_colormap(b, blue_cmap)
 
-    #y_cb_cr = rgb_to_y_cb_cr(original_images["barn_mountains.bmp"], Y_CB_CR_MATRIX)
-
+    y_cb_cr = rgb_to_y_cb_cr(original_images["peppers.bmp"], Y_CB_CR_MATRIX)
+    rgb = y_cb_cr_to_rgb(Y_CB_CR_MATRIX_INVERSE,y_cb_cr)
 
 if __name__ == '__main__':
     main()
