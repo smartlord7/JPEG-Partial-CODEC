@@ -48,15 +48,17 @@ def read_images2(directory, ext):
     return images
 
 
-def separate_rgb(img):
+def separate_rgb(img, show_plots=False):
     r, g, b = img.copy(), img.copy(), img.copy()
     r[:, :, (1, 2)] = 0
     g[:, :, (0, 2)] = 0
     b[:, :, (0, 1)] = 0
-    img_rgb = np.concatenate((r, g, b))
-    plt.figure()
-    plt.imshow(img_rgb)
-    plt.show()
+
+    if show_plots:
+        img_rgb = np.concatenate((r, g, b))
+        plt.figure()
+        plt.imshow(img_rgb)
+        plt.show()
 
     return img[:, :, 0], img[:, :, 1], img[:, :, 2]
 
@@ -80,23 +82,27 @@ def float_to_uint8(matrix):
     return matrix
 
 
-def rgb_to_y_cb_cr(rgb, y_cb_cr_matrix):
+def rgb_to_y_cb_cr(rgb, y_cb_cr_matrix, show_plots=False):
     y_cb_cr = rgb.dot(y_cb_cr_matrix.T)
     y_cb_cr[:, :, [1, 2]] += 128
-    plt.figure()
 
-    plt.imshow(np.concatenate((y_cb_cr[:, :, 0], y_cb_cr[:, :, 1], y_cb_cr[:, :, 2])))
-    plt.show()
+    if show_plots:
+        plt.figure()
+        plt.imshow(np.concatenate((y_cb_cr[:, :, 0], y_cb_cr[:, :, 1], y_cb_cr[:, :, 2])))
+        plt.show()
 
     return y_cb_cr
 
 
-def y_cb_cr_to_rgb(y_cb_cr_inverse_matrix, y_cb_cr):
+def y_cb_cr_to_rgb(y_cb_cr, y_cb_cr_inverse_matrix, show_plots=False):
     y_cb_cr[:, :, [1, 2]] -= 128
     rgb = y_cb_cr.dot(y_cb_cr_inverse_matrix.T)
     rgb = float_to_uint8(rgb)
-    plt.imshow(rgb)
-    plt.show()
+
+    if show_plots:
+        plt.figure()
+        plt.imshow(rgb)
+        plt.show()
 
     return rgb
 
@@ -176,7 +182,7 @@ def reverse_padding(padded_image, original_rows, original_cols):
     return padded_image
 
 
-def encoder(image_data):
+def encoder(image_data, show_plots=False):
     image_name = image_data[0]
     image_matrix = image_data[1]
 
@@ -193,29 +199,49 @@ def encoder(image_data):
     n_rows = image_matrix.shape[0]
     n_cols = image_matrix.shape[1]
 
-    r, g, b = separate_rgb(image_matrix)
-    plot_image_colormap(r, red_cmap)
-    plot_image_colormap(g, green_cmap)
-    plot_image_colormap(b, blue_cmap)
-
     padded_image = apply_padding(image_matrix, 32, 32)
-    show_images(padded_image)
+    if show_plots:
+        show_images(padded_image)
 
-    y_cb_cr_image = rgb_to_y_cb_cr(padded_image, Y_CB_CR_MATRIX)
-    show_images(y_cb_cr_image)
-    plot_image_colormap(y_cb_cr_image[:, :, 0], grey_cmap)
-    plot_image_colormap(y_cb_cr_image[:, :, 1], grey_cmap)
-    plot_image_colormap(y_cb_cr_image[:, :, 2], grey_cmap)
+    r, g, b = separate_rgb(padded_image, show_plots)
+    if show_plots:
+        plot_image_colormap(r, red_cmap)
+        plot_image_colormap(g, green_cmap)
+        plot_image_colormap(b, blue_cmap)
 
-    return n_rows, n_cols
+    y_cb_cr_image = rgb_to_y_cb_cr(padded_image, Y_CB_CR_MATRIX, show_plots)
+    y_cb_cr_image_as_uint8 = float_to_uint8(y_cb_cr_image)
+
+    if show_plots:
+        plot_image_colormap(y_cb_cr_image_as_uint8[:, :, 0], grey_cmap)
+        plot_image_colormap(y_cb_cr_image_as_uint8[:, :, 1], grey_cmap)
+        plot_image_colormap(y_cb_cr_image_as_uint8[:, :, 2], grey_cmap)
+
+    encoded_image = y_cb_cr_image
+
+    return encoded_image, n_rows, n_cols
 
 
-def decoder(encoded_image, n_rows, n_cols):
+def decoder(encoded_image_data):
+    encoded_image_name = encoded_image_data[0]
+    encoded_image = encoded_image_data[1]
+    original_rows = encoded_image_data[2]
+    original_cols = encoded_image_data[3]
+
     Y_CB_CR_MATRIX = np.array([[0.299, 0.587, 0.114], [-0.168736, -0.331264, 0.5], [0.5, -0.418688, -0.081312]])
     Y_CB_CR_MATRIX_INVERSE = np.linalg.inv(Y_CB_CR_MATRIX)
 
-    rgb_image = rgb_to_y_cb_cr(encoded_image, Y_CB_CR_MATRIX_INVERSE)
-    unpadded_image = reverse_padding(rgb_image, n_rows, n_cols)
+    rgb_image = y_cb_cr_to_rgb(encoded_image, Y_CB_CR_MATRIX_INVERSE)
+    unpadded_image = reverse_padding(rgb_image, original_rows, original_cols)
+    show_images(unpadded_image)
+
+    decoded_image = unpadded_image
+
+    return decoded_image
+
+
+def check_compression(original_image, decoded_image):
+    return np.allclose(original_image, decoded_image)
 
 
 def main():
@@ -229,8 +255,24 @@ def main():
     show_images(original_images)
     jpeg_compress_images(ORIGINAL_IMAGE_DIRECTORY, ORIGINAL_IMAGE_EXTENSION, COMPRESSED_IMAGE_DIRECTORY, JPEG_QUALITY_RATES)
 
+    encoded_images = dict()
+
     for image_name in original_images.keys():
-        encoder((image_name, original_images[image_name]))
+        result = encoder((image_name, original_images[image_name]))
+        encoded_images[image_name] = (result[0], result[1], result[2])
+
+    decoded_images = dict()
+    for encoded_image_name in encoded_images.keys():
+        data = encoded_images[encoded_image_name]
+        result = decoder((encoded_image_name, data[0], data[1], data[2]))
+        decoded_images[encoded_image_name] = result
+
+        if check_compression(original_images[encoded_image_name], result):
+            print("Compression successful")
+        else:
+            print("Compression unsuccessful")
+
+
 
 
 if __name__ == '__main__':
