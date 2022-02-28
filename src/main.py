@@ -212,10 +212,14 @@ def encoder(image_data, show_plots=False):
     y_cb_cr_image = rgb_to_y_cb_cr(padded_image, Y_CB_CR_MATRIX, show_plots)
     y_cb_cr_image_as_uint8 = float_to_uint8(y_cb_cr_image)
 
+    y = y_cb_cr_image_as_uint8[:, :, 0]
+    cb = y_cb_cr_image_as_uint8[:, :, 1]
+    cr = y_cb_cr_image_as_uint8[:, :, 2]
+
     if show_plots:
-        plot_image_colormap(y_cb_cr_image_as_uint8[:, :, 0], grey_cmap)
-        plot_image_colormap(y_cb_cr_image_as_uint8[:, :, 1], grey_cmap)
-        plot_image_colormap(y_cb_cr_image_as_uint8[:, :, 2], grey_cmap)
+        plot_image_colormap(y, grey_cmap)
+        plot_image_colormap(cb, grey_cmap)
+        plot_image_colormap(cr, grey_cmap)
 
     encoded_image = y_cb_cr_image
 
@@ -240,7 +244,7 @@ def decoder(encoded_image_data):
     return decoded_image
 
 
-def check_compression(original_image, decoded_image):
+def image_equals(original_image, decoded_image):
     return np.allclose(original_image, decoded_image)
 
 
@@ -258,7 +262,7 @@ def main():
     encoded_images = dict()
 
     for image_name in original_images.keys():
-        result = encoder((image_name, original_images[image_name]))
+        result = encoder((image_name, original_images[image_name]), True)
         encoded_images[image_name] = (result[0], result[1], result[2])
 
     decoded_images = dict()
@@ -267,7 +271,7 @@ def main():
         result = decoder((encoded_image_name, data[0], data[1], data[2]))
         decoded_images[encoded_image_name] = result
 
-        if check_compression(original_images[encoded_image_name], result):
+        if image_equals(original_images[encoded_image_name], result):
             print("Compression successful")
         else:
             print("Compression unsuccessful")
