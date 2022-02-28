@@ -182,6 +182,51 @@ def reverse_padding(padded_image, original_rows, original_cols):
     return padded_image
 
 
+def down_sample(cb, cr, variant, f):
+    if variant == 1:
+        cb_down_sampled = cb[:, 0::f]
+        cr_down_sampled = cr[:, 0::f]
+    elif variant == 2:
+        cb_down_sampled = cb[0::f, 0::f]
+        cr_down_sampled = cr[0::f, 0::f]
+    else:
+        return cb, cr
+
+    return cb_down_sampled, cr_down_sampled
+
+
+def up_sample(cb, cr, cb_factor, cr_factor):
+    cb_t = list(zip(*cb))
+    cr_t = list(zip(*cr))
+
+    if cb_factor == 2:
+        for i in range(0, len(cr_t[0]), 2):
+            j = i * 2
+            copy_cr_t = cr_t[j]
+            cr_t.insert(j + 1, copy_cr_t)
+
+        for i in range(0, len(cb_t[0]), 2):
+            j = i * 2
+            copy_cb_t = cb_t[j]
+            cb.insert(j + 1, copy_cb_t)
+
+    cb = list(zip(*cb_t))
+    cr = list(zip(*cr_t))
+
+    if cr_factor == 0:
+        for i in range(len(cr[0])):
+            j = i * 2
+            copy_cr = cr[j]
+            cr.insert(j + 1, copy_cr)
+
+        for i in range(0, len(cb[0]), 2):
+            j = i * 2
+            copy_cb = cb[j]
+            cb.insert(j + 1, copy_cb)
+
+    return cb, cr
+
+
 def encoder(image_data, show_plots=False):
     image_name = image_data[0]
     image_matrix = image_data[1]
@@ -221,9 +266,9 @@ def encoder(image_data, show_plots=False):
         plot_image_colormap(cb, grey_cmap)
         plot_image_colormap(cr, grey_cmap)
 
-    encoded_image = y_cb_cr_image
+    down_sampled_image = down_sample(cb, cr, 1, 2)
 
-    return encoded_image, n_rows, n_cols
+    return down_sampled_image, n_rows, n_cols
 
 
 def decoder(encoded_image_data):
@@ -262,7 +307,7 @@ def main():
     encoded_images = dict()
 
     for image_name in original_images.keys():
-        result = encoder((image_name, original_images[image_name]), True)
+        result = encoder((image_name, original_images[image_name]), False)
         encoded_images[image_name] = (result[0], result[1], result[2])
 
     decoded_images = dict()
@@ -275,8 +320,6 @@ def main():
             print("Compression successful")
         else:
             print("Compression unsuccessful")
-
-
 
 
 if __name__ == '__main__':
