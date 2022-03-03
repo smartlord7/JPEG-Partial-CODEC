@@ -63,12 +63,12 @@ def separate_rgb(img, show_plots=False):
     return img[:, :, 0], img[:, :, 1], img[:, :, 2]
 
 
-def join_rgb(r, g, b):
-    shape = (r.shape[0], r.shape[1], 3)
-    image = np.zeros(shape, np.uint8)
-    image[:, :, 0] = r
-    image[:, :, 1] = g
-    image[:, :, 2] = b
+def join_channels(c1, c2, c3):
+    shape = (c1.shape[0], c2.shape[1], 3)
+    image = np.zeros(shape)
+    image[:, :, 0] = c1
+    image[:, :, 1] = c2
+    image[:, :, 2] = c3
 
     return image
 
@@ -195,36 +195,19 @@ def down_sample(cb, cr, variant, f):
     return cb_down_sampled, cr_down_sampled
 
 
-def up_sample(cb, cr, cb_factor, cr_factor):
-    cb_t = list(zip(*cb))
-    cr_t = list(zip(*cr))
+def up_sample(cb, cr, variant, f):
+    if variant == 1:
+        cb_up_sampled = np.repeat(cb, f, axis=1)
+        cr_up_sampled = np.repeat(cr, f, axis=1)
+    elif variant == 2:
+        cb_up_sampled = np.repeat(cb, f, axis=1)
+        cr_up_sampled = np.repeat(cr, f, axis=1)
+        cb_up_sampled = np.repeat(cb_up_sampled, f, axis=0)
+        cr_up_sampled = np.repeat(cr_up_sampled, f, axis=0)
+    else:
+        return cb, cr
 
-    if cb_factor == 2:
-        for i in range(0, len(cr_t[0]), 2):
-            j = i * 2
-            copy_cr_t = cr_t[j]
-            cr_t.insert(j + 1, copy_cr_t)
-
-        for i in range(0, len(cb_t[0]), 2):
-            j = i * 2
-            copy_cb_t = cb_t[j]
-            cb.insert(j + 1, copy_cb_t)
-
-    cb = list(zip(*cb_t))
-    cr = list(zip(*cr_t))
-
-    if cr_factor == 0:
-        for i in range(len(cr[0])):
-            j = i * 2
-            copy_cr = cr[j]
-            cr.insert(j + 1, copy_cr)
-
-        for i in range(0, len(cb[0]), 2):
-            j = i * 2
-            copy_cb = cb[j]
-            cb.insert(j + 1, copy_cb)
-
-    return cb, cr
+    return cb_up_sampled, cr_up_sampled
 
 
 def encoder(image_data, show_plots=False):
@@ -255,20 +238,19 @@ def encoder(image_data, show_plots=False):
         plot_image_colormap(b, blue_cmap)
 
     y_cb_cr_image = rgb_to_y_cb_cr(padded_image, Y_CB_CR_MATRIX, show_plots)
-    y_cb_cr_image_as_uint8 = float_to_uint8(y_cb_cr_image)
 
-    y = y_cb_cr_image_as_uint8[:, :, 0]
-    cb = y_cb_cr_image_as_uint8[:, :, 1]
-    cr = y_cb_cr_image_as_uint8[:, :, 2]
+    y = y_cb_cr_image[:, :, 0]
+    cb = y_cb_cr_image[:, :, 1]
+    cr = y_cb_cr_image[:, :, 2]
 
     if show_plots:
         plot_image_colormap(y, grey_cmap)
         plot_image_colormap(cb, grey_cmap)
         plot_image_colormap(cr, grey_cmap)
 
-    down_sampled_image = down_sample(cb, cr, 1, 2)
+    cb, cr = down_sample(cb, cr, 1, 2)
 
-    return down_sampled_image, n_rows, n_cols
+    return (y, cb, cr), n_rows, n_cols
 
 
 def decoder(encoded_image_data):
@@ -280,7 +262,12 @@ def decoder(encoded_image_data):
     Y_CB_CR_MATRIX = np.array([[0.299, 0.587, 0.114], [-0.168736, -0.331264, 0.5], [0.5, -0.418688, -0.081312]])
     Y_CB_CR_MATRIX_INVERSE = np.linalg.inv(Y_CB_CR_MATRIX)
 
-    rgb_image = y_cb_cr_to_rgb(encoded_image, Y_CB_CR_MATRIX_INVERSE)
+    y = encoded_image[0]
+    cb = encoded_image[1]
+    cr = encoded_image[2]
+    cb_up_sampled, cr_up_sampled = up_sample(cb, cr, 1, 2)
+    joined_channels_img = join_channels(y, cb_up_sampled, cr_up_sampled)
+    rgb_image = y_cb_cr_to_rgb(joined_channels_img, Y_CB_CR_MATRIX_INVERSE)
     unpadded_image = reverse_padding(rgb_image, original_rows, original_cols)
     show_images(unpadded_image)
 
@@ -301,8 +288,8 @@ def main():
     JPEG_QUALITY_RATES = [25, 50, 75]
 
     original_images = read_images(ORIGINAL_IMAGE_DIRECTORY, ORIGINAL_IMAGE_EXTENSION)
-    show_images(original_images)
-    jpeg_compress_images(ORIGINAL_IMAGE_DIRECTORY, ORIGINAL_IMAGE_EXTENSION, COMPRESSED_IMAGE_DIRECTORY, JPEG_QUALITY_RATES)
+    #show_images(original_images)
+    #jpeg_compress_images(ORIGINAL_IMAGE_DIRECTORY, ORIGINAL_IMAGE_EXTENSION, COMPRESSED_IMAGE_DIRECTORY, JPEG_QUALITY_RATES)
 
     encoded_images = dict()
 
@@ -317,9 +304,9 @@ def main():
         decoded_images[encoded_image_name] = result
 
         if image_equals(original_images[encoded_image_name], result):
-            print("Compression successful")
+            print("No diff")
         else:
-            print("Compression unsuccessful")
+            print("Diff")
 
 
 if __name__ == '__main__':
