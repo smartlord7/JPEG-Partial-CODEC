@@ -1,3 +1,15 @@
+"""------------COMPRESSAO DE IMAGEM------------
+Universidade de Coimbra
+Licenciatura em Engenharia Informatica
+Multimedia
+Terceiro ano, segundo semestre
+Authors:
+Rui Bernardo Lopes Rodrigues
+Sancho Amaral Simões, 2019217590, uc2019217590@student.uc.pt
+Tiago Filipe Santa Ventura, 2019243695, uc2019243695@student.uc.pt
+19/12/2020
+---------------------------------------------------------------------------"""
+
 import os
 import numpy as np
 from PIL import Image
@@ -6,6 +18,11 @@ import matplotlib.colors as clr
 
 
 def show_images(images):
+    """
+      Given one or more images,this function will show them in order
+      :param images: the image(s) to show.
+      :return:
+    """
     t = type(images)
 
     if t == dict:
@@ -26,6 +43,12 @@ def show_images(images):
 
 
 def read_images(directory, ext):
+    """
+          Given one directory and a file extension,this function will create a dictionary of the images in the directory.
+          :param directory: the image(s) directory.
+          :param ext: the image(s) extension.
+          :return: dictionary with the images.
+    """
     images = dict()
 
     for image_name in os.listdir(directory):
@@ -38,6 +61,12 @@ def read_images(directory, ext):
 
 
 def read_images2(directory, ext):
+    """
+             Given one directory and a file extension,this function will create a dictionary of the images in the directory.
+             :param directory: the image(s) directory.
+             :param ext: the image(s) extension.
+             :return: dictionary with the images.
+    """
     images = dict()
 
     for image_name in os.listdir(directory):
@@ -49,6 +78,12 @@ def read_images2(directory, ext):
 
 
 def separate_rgb(img, show_plots=False):
+    """
+             Separates the rgb channels of an image.
+             :param img: the image.
+             :param show_plots: flag that toggles if it plots the channels.
+             :return: RGB channels matrix.
+    """
     r, g, b = img.copy(), img.copy(), img.copy()
     r[:, :, (1, 2)] = 0
     g[:, :, (0, 2)] = 0
@@ -64,6 +99,13 @@ def separate_rgb(img, show_plots=False):
 
 
 def join_channels(c1, c2, c3):
+    """
+             Function that joins the RGB channels in one.
+             :param c1: RGB Channel 1.
+             :param c2: RGB Channel 2.
+             :param c3: RGB Channel 3.
+             :return: image that results in the of the 3 channels.
+    """
     shape = (c1.shape[0], c2.shape[1], 3)
     image = np.zeros(shape)
     image[:, :, 0] = c1
@@ -74,6 +116,11 @@ def join_channels(c1, c2, c3):
 
 
 def float_to_uint8(matrix):
+    """
+                Converts float to uint8.
+                :param matrix: Matrix with the floats.
+                :return: UINT8 converted matrix.
+    """
     matrix = matrix.round()
     matrix[matrix > 255] = 255
     matrix[matrix < 0] = 0
@@ -83,6 +130,13 @@ def float_to_uint8(matrix):
 
 
 def rgb_to_y_cb_cr(rgb, y_cb_cr_matrix, show_plots=False):
+    """
+                Converts RGB to YCBCR.
+                :param rgb: RGB matrix.
+                :param y_cb_cr_matrix: YCBCR default values matrix.
+                :param show_plots: flag that enables plotting.
+                :return: YCBCR converted matrix.
+    """
     y_cb_cr = rgb.dot(y_cb_cr_matrix.T)
     y_cb_cr[:, :, [1, 2]] += 128
 
@@ -95,6 +149,13 @@ def rgb_to_y_cb_cr(rgb, y_cb_cr_matrix, show_plots=False):
 
 
 def y_cb_cr_to_rgb(y_cb_cr, y_cb_cr_inverse_matrix, show_plots=False):
+    """
+                    Converts RGB to YCBCR.
+                    :param y_cb_cr: YCBCR matrix.
+                    :param y_cb_cr_inverse_matrix: YCBCR inverse default values matrix.
+                    :param show_plots: flag that enables plotting.
+                    :return: RGB converted matrix.
+    """
     y_cb_cr[:, :, [1, 2]] -= 128
     rgb = y_cb_cr.dot(y_cb_cr_inverse_matrix.T)
     rgb = float_to_uint8(rgb)
@@ -108,6 +169,14 @@ def y_cb_cr_to_rgb(y_cb_cr, y_cb_cr_inverse_matrix, show_plots=False):
 
 
 def jpeg_compress_images(directory, ext, out_dir, quality_rates):
+    """
+                        Compresses images.
+                        :param directory: images directory.
+                        :param ext: images extension.
+                        :param out_dir: output directory.
+                        :param quality_rates: the quality rates of the compression.
+                        :return:
+    """
     images = read_images2(directory, ext)
     fig, axis = plt.subplots(len(images), len(quality_rates))
     i = 0
@@ -130,18 +199,35 @@ def jpeg_compress_images(directory, ext, out_dir, quality_rates):
 
 
 def generate_linear_colormap(color_list):
+    """
+                            Generates the colormap.
+                           :param color_list: list of colors.
+                           :return: the colormap.
+    """
     colormap = clr.LinearSegmentedColormap.from_list('cmap', color_list, N=256)
 
     return colormap
 
 
 def plot_image_colormap(image_channel, colormap):
+    """
+                               Plot the images with the colormap.
+                              :param image_channel: the channel to use in the colormap.
+                              :return:
+    """
     plt.figure()
     plt.imshow(image_channel, colormap)
     plt.show()
 
 
 def apply_padding(image, wanted_rows, wanted_cols):
+    """
+                            Applies padding to the image.
+                            :param image: the image to pad.
+                            :param wanted_rows: number of rows to pad.
+                            :param wanted_cols: number of columns to pad.
+                            :return: the image with padding.
+    """
     n_rows = image.shape[0]
     n_cols = image.shape[1]
 
@@ -164,6 +250,13 @@ def apply_padding(image, wanted_rows, wanted_cols):
 
 
 def reverse_padding(padded_image, original_rows, original_cols):
+    """
+                                Reverses the padding.
+                                :param padded_image: the padded image to unpad.
+                                :param original_rows: number of original rows.
+                                :param original_cols: number of original columns.
+                                :return: the original image.
+    """
     n_rows = padded_image.shape[0]
     n_cols = padded_image.shape[1]
 
@@ -183,6 +276,14 @@ def reverse_padding(padded_image, original_rows, original_cols):
 
 
 def down_sample(cb, cr, variant, f):
+    """
+                                    Function to down sample.
+                                    :param cb: CB channel.
+                                    :param cr: CR channel.
+                                    :param variant: downsampling variant.
+                                    :param f: downsampling factor.
+                                    :return: the downsampled channels.
+    """
     if variant == 1:
         cb_down_sampled = cb[:, 0::f]
         cr_down_sampled = cr[:, 0::f]
@@ -196,6 +297,14 @@ def down_sample(cb, cr, variant, f):
 
 
 def up_sample(cb, cr, variant, f):
+    """
+                                       Function to up sample.
+                                       :param cb: CB channel.
+                                       :param cr: CR channel.
+                                       :param variant: downsampling variant.
+                                       :param f: downsampling factor.
+                                       :return: the upsampled channels.
+    """
     if variant == 1:
         cb_up_sampled = np.repeat(cb, f, axis=1)
         cr_up_sampled = np.repeat(cr, f, axis=1)
@@ -211,6 +320,12 @@ def up_sample(cb, cr, variant, f):
 
 
 def encoder(image_data, show_plots=False):
+    """
+                                       Enconder function.
+                                       :param image_data: the image to encode.
+                                       :param show_plots: flag that enables plotting.
+                                       :return: the encoded image.
+    """
     image_name = image_data[0]
     image_matrix = image_data[1]
 
@@ -254,6 +369,11 @@ def encoder(image_data, show_plots=False):
 
 
 def decoder(encoded_image_data):
+    """
+                                           Decode function.
+                                           :param encoded_image_data: the image to decode.
+                                           :return: the decoded image.
+    """
     encoded_image_name = encoded_image_data[0]
     encoded_image = encoded_image_data[1]
     original_rows = encoded_image_data[2]
@@ -277,10 +397,19 @@ def decoder(encoded_image_data):
 
 
 def image_equals(original_image, decoded_image):
+    """
+                                           Verifies if the images are equal.
+                                           :param original_image: original image.
+                                           :param decoded_image: decoded image.
+                                           :return: if the image is equal or no.
+    """
     return np.allclose(original_image, decoded_image)
 
 
 def main():
+    """
+    Main function
+    """
     CWD = os.getcwd()
     ORIGINAL_IMAGE_DIRECTORY = CWD + '/original_img/'
     ORIGINAL_IMAGE_EXTENSION = '.bmp'
