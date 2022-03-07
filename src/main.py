@@ -13,11 +13,14 @@ Tiago Filipe Santa Ventura, 2019243695, uc2019243695@student.uc.pt
 import os
 import numpy as np
 from PIL import Image
+from numpy import pi
+from numpy import r_
+from scipy.fftpack import dct, idct
 import matplotlib.pyplot as plt
 import matplotlib.colors as clr
 
 
-def show_images(images):
+def show_images(images, name= None):
     """
       Given one or more images,this function will show them in order
       :param images: the image(s) to show.
@@ -34,10 +37,12 @@ def show_images(images):
     elif t == list:
         for image in images:
             plt.figure()
+            plt.title(name)
             plt.imshow(image)
             plt.show()
     else:
         plt.figure()
+        plt.title(name)
         plt.imshow(images)
         plt.show()
 
@@ -92,6 +97,7 @@ def separate_rgb(img, show_plots=False):
     if show_plots:
         img_rgb = np.concatenate((r, g, b))
         plt.figure()
+        plt.title("Separate RGB")
         plt.imshow(img_rgb)
         plt.show()
 
@@ -142,6 +148,7 @@ def rgb_to_y_cb_cr(rgb, y_cb_cr_matrix, show_plots=False):
 
     if show_plots:
         plt.figure()
+        plt.title("YCbCr")
         plt.imshow(np.concatenate((y_cb_cr[:, :, 0], y_cb_cr[:, :, 1], y_cb_cr[:, :, 2])))
         plt.show()
 
@@ -162,6 +169,7 @@ def y_cb_cr_to_rgb(y_cb_cr, y_cb_cr_inverse_matrix, show_plots=False):
 
     if show_plots:
         plt.figure()
+        plt.title("RGB from YCbCr")
         plt.imshow(rgb)
         plt.show()
 
@@ -209,13 +217,14 @@ def generate_linear_colormap(color_list):
     return colormap
 
 
-def plot_image_colormap(image_channel, colormap):
+def plot_image_colormap(image_channel, colormap,name=None):
     """
                                Plot the images with the colormap.
                               :param image_channel: the channel to use in the colormap.
                               :return:
     """
     plt.figure()
+    plt.tile(name)
     plt.imshow(image_channel, colormap)
     plt.show()
 
@@ -319,6 +328,52 @@ def up_sample(cb, cr, variant, f):
     return cb_up_sampled, cr_up_sampled
 
 
+def dct_blocks(im,f):
+    imsize = im.shape
+    dct = np.zeros(imsize)
+
+
+    for i in r_[:imsize[0]:f]:
+        for j in r_[:imsize[1]:f]:
+            dct[i:(i + f), j:(j + f)] = d_c_t(im[i:(i + f), j:(j + f)])
+    pos = 128
+
+
+    plt.figure()
+    plt.imshow(im[pos:pos + f, pos:pos + f], cmap='gray')
+    plt.title(str(f) + "x" + str(f) +"normal block")
+
+
+    plt.figure()
+    plt.imshow(dct[pos:pos + f, pos:pos + f], cmap='gray', vmax=np.max(dct) * 0.01, vmin=0, extent=[0, pi, pi, 0])
+    plt.title(str(f) + "x" + str(f) +"DCT block")
+
+
+def d_c_t(matrix):
+    matrix_dct = dct(dct(matrix, norm="ortho").T, norm="ortho").T
+    return matrix_dct
+
+
+def i_d_c_t(matrix_dct):
+    matrix_idct = idct(idct(matrix_dct, norm="ortho").T, norm="ortho").T
+    return matrix_idct
+
+
+def view_dct(y, cb, cr, cmap, name):
+    plt.figure()
+    plt.title(name + " Y")
+    plt.imshow(np.log2(np.abs(y) + 0.0001), cmap)
+    plt.show()
+    plt.figure()
+    plt.title(name + " Cb")
+    plt.imshow(np.log2(np.abs(cb) + 0.0001), cmap)
+    plt.show()
+    plt.figure()
+    plt.title(name + " Cr")
+    plt.imshow(np.log2(np.abs(cr) + 0.0001), cmap)
+    plt.show()
+
+
 def encoder(image_data, show_plots=False):
     """
                                        Enconder function.
@@ -344,13 +399,13 @@ def encoder(image_data, show_plots=False):
 
     padded_image = apply_padding(image_matrix, 32, 32)
     if show_plots:
-        show_images(padded_image)
+        show_images(padded_image,"Padded Image")
 
     r, g, b = separate_rgb(padded_image, show_plots)
     if show_plots:
-        plot_image_colormap(r, red_cmap)
-        plot_image_colormap(g, green_cmap)
-        plot_image_colormap(b, blue_cmap)
+        plot_image_colormap(r, red_cmap,"Red")
+        plot_image_colormap(g, green_cmap,"Green")
+        plot_image_colormap(b, blue_cmap,"Blue")
 
     y_cb_cr_image = rgb_to_y_cb_cr(padded_image, Y_CB_CR_MATRIX, show_plots)
 
@@ -359,13 +414,30 @@ def encoder(image_data, show_plots=False):
     cr = y_cb_cr_image[:, :, 2]
 
     if show_plots:
-        plot_image_colormap(y, grey_cmap)
-        plot_image_colormap(cb, grey_cmap)
-        plot_image_colormap(cr, grey_cmap)
+        plot_image_colormap(y, grey_cmap,"Y")
+        plot_image_colormap(cb, grey_cmap,"Cb")
+        plot_image_colormap(cr, grey_cmap,"Cr")
 
     cb, cr = down_sample(cb, cr, 1, 2)
 
-    return (y, cb, cr), n_rows, n_cols
+    y_dct = d_c_t(y)
+    cb_dct = d_c_t(cb)
+    cr_dct = d_c_t(cr)
+
+    view_dct(y_dct, cb_dct, cr_dct, grey_cmap, "DCT")
+
+    y_idct = i_d_c_t(y_dct)
+    cb_idct = i_d_c_t(cb_dct)
+    cr_idct = i_d_c_t(cr_dct)
+
+    view_dct(y_idct, cb_idct, cr_idct, grey_cmap, "IDCT")
+
+    dct_blocks(y,8)
+    dct_blocks(cb,8)
+    dct_blocks(cr,8)
+
+
+    return (y_idct, cb_idct, cr_idct), n_rows, n_cols
 
 
 def decoder(encoded_image_data):
