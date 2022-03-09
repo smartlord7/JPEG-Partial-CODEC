@@ -20,7 +20,7 @@ import matplotlib.pyplot as plt
 import matplotlib.colors as clr
 
 
-def show_images(images, name= None):
+def show_images(images, name=None):
     """
       Given one or more images,this function will show them in order
       :param images: the image(s) to show.
@@ -346,7 +346,7 @@ def apply_dct_blocks(im, block_size, cmap):
     return dct_image
 
 
-def apply_inverse_dct_blocks(dct_image, block_size):
+def apply_inverse_dct_blocks(image_name, dct_image, block_size):
     imsize = dct_image.shape
     image = np.zeros(imsize)
 
@@ -356,7 +356,7 @@ def apply_inverse_dct_blocks(dct_image, block_size):
 
     plt.figure()
     plt.imshow(image)
-    plt.title(str(block_size) + "x" + str(block_size) + "Inverse DCT blocks")
+    plt.title(image_name + "-" + str(block_size) + "x" + str(block_size) + "Inverse DCT blocks")
 
     return image
 
@@ -470,14 +470,14 @@ def decoder(encoded_image_data):
     y = encoded_image[0]
     cb = encoded_image[1]
     cr = encoded_image[2]
-    y_inverse_dct = apply_inverse_dct_blocks(y, 8)
-    cb_inverse_dct = apply_inverse_dct_blocks(cb, 8)
-    cr_inverse_dct = apply_inverse_dct_blocks(cr, 8)
+    y_inverse_dct = apply_inverse_dct_blocks(encoded_image_name, y, 8)
+    cb_inverse_dct = apply_inverse_dct_blocks(encoded_image_name, cb, 8)
+    cr_inverse_dct = apply_inverse_dct_blocks(encoded_image_name, cr, 8)
     cb_up_sampled, cr_up_sampled = up_sample(cb_inverse_dct, cr_inverse_dct, 1, 2)
     joined_channels_img = join_channels(y_inverse_dct, cb_up_sampled, cr_up_sampled)
     rgb_image = y_cb_cr_to_rgb(joined_channels_img, Y_CB_CR_MATRIX_INVERSE)
     unpadded_image = reverse_padding(rgb_image, original_rows, original_cols)
-    show_images(unpadded_image)
+    show_images(unpadded_image, encoded_image_name + " - Decompressed")
 
     decoded_image = unpadded_image
 
