@@ -328,31 +328,48 @@ def up_sample(cb, cr, variant, f):
     return cb_up_sampled, cr_up_sampled
 
 
-def dct_blocks(im, f):
+def apply_dct_blocks(im, block_size, cmap):
     imsize = im.shape
-    dct = np.zeros(imsize)
+    dct_image = np.zeros(imsize)
 
-    for i in r_[:imsize[0]:f]:
-        for j in r_[:imsize[1]:f]:
-            dct[i:(i + f), j:(j + f)] = d_c_t(im[i:(i + f), j:(j + f)])
-    pos = 128
-
-    plt.figure()
-    plt.imshow(im[pos:pos + f, pos:pos + f], cmap='gray')
-    plt.title(str(f) + "x" + str(f) +"normal block")
+    for i in r_[:imsize[0]:block_size]:
+        for j in r_[:imsize[1]:block_size]:
+            tmp = np.copy(dct_image[i:(i + block_size), j:(j + block_size)])
+            cmp = apply_dct(im[i:(i + block_size), j:(j + block_size)])
+            dct_image[i:(i + block_size), j:(j + block_size)] = cmp
+            inv = apply_inverse_dct(cmp)
 
     plt.figure()
-    plt.imshow(dct[pos:pos + f, pos:pos + f], cmap='gray', vmax=np.max(dct) * 0.01, vmin=0, extent=[0, pi, pi, 0])
-    plt.title(str(f) + "x" + str(f) +"DCT block")
+    plt.imshow(dct_image, cmap=cmap)
+    plt.title(str(block_size) + "x" + str(block_size) + "DCT blocks")
+
+    return dct_image
 
 
-def d_c_t(matrix):
+def apply_inverse_dct_blocks(dct_image, block_size):
+    imsize = dct_image.shape
+    image = np.zeros(imsize)
+
+    for i in r_[:imsize[0]:block_size]:
+        for j in r_[:imsize[1]:block_size]:
+            image[i:(i + block_size), j:(j + block_size)] = apply_inverse_dct(dct_image[i:(i + block_size), j:(j + block_size)])
+
+    plt.figure()
+    plt.imshow(image)
+    plt.title(str(block_size) + "x" + str(block_size) + "Inverse DCT blocks")
+
+    return image
+
+
+def apply_dct(matrix):
     matrix_dct = dct(dct(matrix, norm="ortho").T, norm="ortho").T
+    
     return matrix_dct
 
 
-def i_d_c_t(matrix_dct):
+def apply_inverse_dct(matrix_dct):
     matrix_idct = idct(idct(matrix_dct, norm="ortho").T, norm="ortho").T
+
     return matrix_idct
 
 
@@ -411,30 +428,29 @@ def encoder(image_data, show_plots=False):
     cr = y_cb_cr_image[:, :, 2]
 
     if show_plots:
-        plot_image_colormap(y, grey_cmap,"Y")
-        plot_image_colormap(cb, grey_cmap,"Cb")
-        plot_image_colormap(cr, grey_cmap,"Cr")
+        plot_image_colormap(y, grey_cmap, "Y")
+        plot_image_colormap(cb, grey_cmap, "Cb")
+        plot_image_colormap(cr, grey_cmap, "Cr")
 
     cb, cr = down_sample(cb, cr, 1, 2)
 
-    y_dct = d_c_t(y)
-    cb_dct = d_c_t(cb)
-    cr_dct = d_c_t(cr)
+    #y_dct_total = apply_dct(y)
+    #cb_dct_total = apply_dct(cb)
+    #cr_dct_total = apply_dct(cr)
 
-    view_dct(y_dct, cb_dct, cr_dct, grey_cmap, "DCT")
+    #view_dct(y_dct_total, cb_dct_total, cr_dct_total, grey_cmap, "DCT")
 
-    y_idct = i_d_c_t(y_dct)
-    cb_idct = i_d_c_t(cb_dct)
-    cr_idct = i_d_c_t(cr_dct)
+    #y_idct = apply_inverse_dct(y_dct_total)
+    #cb_idct = apply_inverse_dct(cb_dct_total)
+    #cr_idct = apply_inverse_dct(cr_dct_total)
 
-    view_dct(y_idct, cb_idct, cr_idct, grey_cmap, "IDCT")
+    #view_dct(y_idct, cb_idct, cr_idct, grey_cmap, "IDCT")
 
-    dct_blocks(y,8)
-    dct_blocks(cb,8)
-    dct_blocks(cr,8)
+    y_dct_blocks = apply_dct_blocks(y, 8, grey_cmap)
+    cb_dct_blocks = apply_dct_blocks(cb, 8, grey_cmap)
+    cr_dct_blocks = apply_dct_blocks(cr, 8, grey_cmap)
 
-
-    return (y_idct, cb_idct, cr_idct), n_rows, n_cols
+    return (y_dct_blocks, cb_dct_blocks, cr_dct_blocks), n_rows, n_cols
 
 
 def decoder(encoded_image_data):
@@ -454,8 +470,11 @@ def decoder(encoded_image_data):
     y = encoded_image[0]
     cb = encoded_image[1]
     cr = encoded_image[2]
-    cb_up_sampled, cr_up_sampled = up_sample(cb, cr, 1, 2)
-    joined_channels_img = join_channels(y, cb_up_sampled, cr_up_sampled)
+    y_inverse_dct = apply_inverse_dct_blocks(y, 8)
+    cb_inverse_dct = apply_inverse_dct_blocks(cb, 8)
+    cr_inverse_dct = apply_inverse_dct_blocks(cr, 8)
+    cb_up_sampled, cr_up_sampled = up_sample(cb_inverse_dct, cr_inverse_dct, 1, 2)
+    joined_channels_img = join_channels(y_inverse_dct, cb_up_sampled, cr_up_sampled)
     rgb_image = y_cb_cr_to_rgb(joined_channels_img, Y_CB_CR_MATRIX_INVERSE)
     unpadded_image = reverse_padding(rgb_image, original_rows, original_cols)
     show_images(unpadded_image)
