@@ -217,14 +217,14 @@ def generate_linear_colormap(color_list):
     return colormap
 
 
-def plot_image_colormap(image_channel, colormap,name=None):
+def plot_image_colormap(image_channel, colormap, name=None):
     """
                                Plot the images with the colormap.
                               :param image_channel: the channel to use in the colormap.
                               :return:
     """
     plt.figure()
-    plt.tile(name)
+    plt.title(name)
     plt.imshow(image_channel, colormap)
     plt.show()
 
@@ -328,21 +328,18 @@ def up_sample(cb, cr, variant, f):
     return cb_up_sampled, cr_up_sampled
 
 
-def dct_blocks(im,f):
+def dct_blocks(im, f):
     imsize = im.shape
     dct = np.zeros(imsize)
-
 
     for i in r_[:imsize[0]:f]:
         for j in r_[:imsize[1]:f]:
             dct[i:(i + f), j:(j + f)] = d_c_t(im[i:(i + f), j:(j + f)])
     pos = 128
 
-
     plt.figure()
     plt.imshow(im[pos:pos + f, pos:pos + f], cmap='gray')
     plt.title(str(f) + "x" + str(f) +"normal block")
-
 
     plt.figure()
     plt.imshow(dct[pos:pos + f, pos:pos + f], cmap='gray', vmax=np.max(dct) * 0.01, vmin=0, extent=[0, pi, pi, 0])
