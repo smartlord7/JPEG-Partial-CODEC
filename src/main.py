@@ -533,7 +533,7 @@ def main():
     Main function
     """
     CWD = os.getcwd()
-    ORIGINAL_IMAGE_DIRECTORY = CWD + '/original_img/'
+    ORIGINAL_IMAGE_DIRECTORY = CWD + '\\resources\\img\\original_img\\'
     ORIGINAL_IMAGE_EXTENSION = '.bmp'
     COMPRESSED_IMAGE_DIRECTORY = CWD + '\\jpeg_compressed_img'
     JPEG_QUALITY_RATES = [25, 50, 75]
