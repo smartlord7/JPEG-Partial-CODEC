@@ -1,6 +1,5 @@
 import numpy as np
 from astropy.nddata import reshape_as_blocks
-from matplotlib import pyplot as plt
 from numpy import r_
 from scipy.fftpack import dct, idct
 
@@ -17,21 +16,21 @@ def join_matrix_blockwise(blocks):
     return np.concatenate(np.concatenate(blocks, axis=1), axis=1)
 
 
-def apply_dct_blocks_optimized(im, block_size, cmap):
+def apply_dct_blocks_optimized(im, block_size):
     blocks = split_matrix_blockwise(im, block_size)
     dct_blocks = dct(dct(blocks, axis=2, norm="ortho"), axis=3, norm="ortho")
 
     return dct_blocks
 
 
-def apply_inverse_dct_blocks_optimized(blocks, cmap):
+def apply_inverse_dct_blocks_optimized(blocks,):
     idct_blocks = idct(idct(blocks, axis=2, norm="ortho"), axis=3, norm="ortho")
     image = join_matrix_blockwise(idct_blocks)
 
     return image
 
 
-def apply_dct_blocks(im, block_size, cmap):
+def apply_dct_blocks_r_(im, block_size):
     imsize = im.shape
     dct_image = np.zeros(imsize)
 
@@ -40,14 +39,10 @@ def apply_dct_blocks(im, block_size, cmap):
             dct_block = apply_dct(im[i:(i + block_size), j:(j + block_size)])
             dct_image[i:(i + block_size), j:(j + block_size)] = dct_block
 
-    plt.figure()
-    plt.imshow(dct_image, cmap=cmap)
-    plt.title(str(block_size) + "x" + str(block_size) + "DCT blocks")
-
     return dct_image
 
 
-def apply_inverse_dct_blocks(image_name, dct_image, block_size):
+def apply_inverse_dct_blocks_r_(dct_image, block_size):
     imsize = dct_image.shape
     image = np.zeros(imsize)
 
@@ -56,9 +51,29 @@ def apply_inverse_dct_blocks(image_name, dct_image, block_size):
             image[i:(i + block_size), j:(j + block_size)] = apply_inverse_dct(
                 dct_image[i:(i + block_size), j:(j + block_size)])
 
-    plt.figure()
-    plt.imshow(image)
-    plt.title(image_name + "-" + str(block_size) + "x" + str(block_size) + "Inverse DCT blocks")
+    return image
+
+
+def apply_dct_blocks_loops(im, block_size):
+    imsize = im.shape
+    dct_image = np.zeros(imsize)
+
+    for i in range(0, imsize[0], block_size):
+        for j in range(0, imsize[1], block_size):
+            dct_block = apply_dct(im[i:(i + block_size), j:(j + block_size)])
+            dct_image[i:(i + block_size), j:(j + block_size)] = dct_block
+
+    return dct_image
+
+
+def apply_inverse_dct_blocks_loops(dct_image, block_size):
+    imsize = dct_image.shape
+    image = np.zeros(imsize)
+
+    for i in range(0, imsize[0], block_size):
+        for j in range(0, imsize[1], block_size):
+            image[i:(i + block_size), j:(j + block_size)] = apply_inverse_dct(
+                dct_image[i:(i + block_size), j:(j + block_size)])
 
     return image
 

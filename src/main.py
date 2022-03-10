@@ -75,9 +75,9 @@ def encoder(image_data, show_plots=False):
     show_images(cb_idct_total, image_name + " - Total Inverse DCT - Cb", GREY_CMAP)
     show_images(cr_idct_total, image_name + " - Total Inverse DCT - Cr", GREY_CMAP)
 
-    y_dct_blocks = apply_dct_blocks_optimized(y, BLOCK_SIZE, GREY_CMAP)
-    cb_dct_blocks = apply_dct_blocks_optimized(cb, BLOCK_SIZE, GREY_CMAP)
-    cr_dct_blocks = apply_dct_blocks_optimized(cr, BLOCK_SIZE, GREY_CMAP)
+    y_dct_blocks = apply_dct_blocks_optimized(y, BLOCK_SIZE)
+    cb_dct_blocks = apply_dct_blocks_optimized(cb, BLOCK_SIZE)
+    cr_dct_blocks = apply_dct_blocks_optimized(cr, BLOCK_SIZE)
 
     joined_y_dct_blocks = join_matrix_blockwise(y_dct_blocks)
     joined_cb_dct_blocks = join_matrix_blockwise(cb_dct_blocks)
