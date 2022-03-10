@@ -388,13 +388,17 @@ def view_dct(y, cb, cr, cmap, name):
     plt.show()
 
 
-def split_matrix_blockwise(array, nrows, ncols):
+def split_matrix_blockwise(array, block_size):
     """Split a matrix into sub-matrices."""
 
-    r, h = array.shape
-    return (array.reshape(h//nrows, nrows, -1, ncols)
-                 .swapaxes(1, 2)
-                 .reshape(-1, nrows, ncols))
+    return reshape_as_blocks(array, block_size)
+
+
+def join_matrix_blockwise(blocks):
+    """Joins submatrixes into an matrix"""
+
+    return np.concatenate(np.concatenate(blocks, axis=1), axis=1)
+
 
 def encoder(image_data, show_plots=False):
     """
