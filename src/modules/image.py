@@ -23,12 +23,12 @@ def show_images(images, name=None, cmap=None):
 
     if t == dict:
         for image_name in images:
-            _show_image(images[image_name], name, cmap)
+            _show_image(images[image_name], name=image_name, cmap=cmap)
     elif t == list:
         for image in images:
-            _show_image(image, name, cmap)
+            _show_image(image, name=name, cmap=cmap)
     else:
-        _show_image(images, name, cmap)
+        _show_image(images, name=name, cmap=cmap)
 
 
 def read_images(directory, ext):

@@ -20,11 +20,6 @@ def join_matrix_blockwise(blocks):
 def apply_dct_blocks_optimized(im, block_size, cmap):
     blocks = split_matrix_blockwise(im, block_size)
     dct_blocks = dct(dct(blocks, axis=2, norm="ortho"), axis=3, norm="ortho")
-    dct_image = join_matrix_blockwise(dct_blocks)
-
-    plt.figure()
-    plt.imshow(dct_image, cmap=cmap)
-    plt.title(str(block_size) + "x" + str(block_size) + " DCT blocks")
 
     return dct_blocks
 
@@ -32,10 +27,6 @@ def apply_dct_blocks_optimized(im, block_size, cmap):
 def apply_inverse_dct_blocks_optimized(blocks, cmap):
     idct_blocks = idct(idct(blocks, axis=2, norm="ortho"), axis=3, norm="ortho")
     image = join_matrix_blockwise(idct_blocks)
-
-    plt.figure()
-    plt.imshow(image, cmap=cmap)
-    plt.title("IDCT blocks")
 
     return image
 

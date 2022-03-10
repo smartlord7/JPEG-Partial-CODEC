@@ -1,25 +1,12 @@
 import numpy as np
-from matplotlib import pyplot as plt
 
 
-def separate_rgb(img, show_plots=False):
+def separate_rgb(img):
     """
              Separates the rgb channels of an image.
              :param img: the image.
-             :param show_plots: flag that toggles if it plots the channels.
-             :return: RGB channels matrix.
+             :return: RGB channels.
     """
-    r, g, b = img.copy(), img.copy(), img.copy()
-    r[:, :, (1, 2)] = 0
-    g[:, :, (0, 2)] = 0
-    b[:, :, (0, 1)] = 0
-
-    if show_plots:
-        img_rgb = np.concatenate((r, g, b))
-        plt.figure()
-        plt.title("Separate RGB")
-        plt.imshow(img_rgb)
-        plt.show()
 
     return img[:, :, 0], img[:, :, 1], img[:, :, 2]
 

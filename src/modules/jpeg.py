@@ -1,3 +1,7 @@
+from matplotlib import pyplot as plt
+from modules.image import read_images2
+
+
 def jpeg_compress_images(directory, ext, out_dir, quality_rates):
     """
                         Compresses images.
@@ -15,7 +19,7 @@ def jpeg_compress_images(directory, ext, out_dir, quality_rates):
         j = 0
         for quality_rate in quality_rates:
             compressed_image_name = image_name.replace(ext, "") + str(quality_rate) + ".jpg"
-            compress_image_path = out_dir + "/" + compressed_image_name
+            compress_image_path = out_dir + "\\" + compressed_image_name
             images[image_name].save(compress_image_path, quality=quality_rate)
             image = plt.imread(compress_image_path)
             axis[i, j].imshow(image)
