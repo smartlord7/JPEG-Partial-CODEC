@@ -24,6 +24,7 @@ def show_images(images, name=None):
     """
       Given one or more images,this function will show them in order
       :param images: the image(s) to show.
+      :param name: the name of the image to show
       :return:
     """
     t = type(images)
@@ -269,16 +270,14 @@ def reverse_padding(padded_image, original_rows, original_cols):
     n_rows = padded_image.shape[0]
     n_cols = padded_image.shape[1]
 
-    rows_to_delete = n_rows - original_rows
-    rows_to_delete = [i for i in range(n_rows - rows_to_delete - 1, n_rows - 1)]
-
-    if rows_to_delete != 0:
+    n_rows_to_delete = n_rows - original_rows
+    if n_rows_to_delete != 0:
+        rows_to_delete = np.arange(n_rows - n_rows_to_delete - 1, n_rows - 1)
         padded_image = np.delete(padded_image, rows_to_delete, axis=0)
 
-    cols_to_delete = n_cols - original_cols
-    cols_to_delete = [i for i in range(n_cols - cols_to_delete - 1, n_cols - 1)]
-
-    if cols_to_delete != 0:
+    n_cols_to_delete = n_cols - original_cols
+    if n_cols_to_delete != 0:
+        cols_to_delete = np.arange(n_cols - n_cols_to_delete - 1, n_cols - 1)
         padded_image = np.delete(padded_image, cols_to_delete, axis=1)
 
     return padded_image
@@ -329,15 +328,16 @@ def up_sample(cb, cr, variant, f):
 
 
 def apply_dct_blocks(im, block_size, cmap):
+    #blocks = split_matrix_blockwise(im, block_size, block_size)
+    #dct_image = np.apply_along_axis(apply_dct, 1, blocks)
+
     imsize = im.shape
     dct_image = np.zeros(imsize)
 
     for i in r_[:imsize[0]:block_size]:
         for j in r_[:imsize[1]:block_size]:
-            tmp = np.copy(dct_image[i:(i + block_size), j:(j + block_size)])
-            cmp = apply_dct(im[i:(i + block_size), j:(j + block_size)])
-            dct_image[i:(i + block_size), j:(j + block_size)] = cmp
-            inv = apply_inverse_dct(cmp)
+            dct_block = apply_dct(im[i:(i + block_size), j:(j + block_size)])
+            dct_image[i:(i + block_size), j:(j + block_size)] = dct_block
 
     plt.figure()
     plt.imshow(dct_image, cmap=cmap)
@@ -387,6 +387,14 @@ def view_dct(y, cb, cr, cmap, name):
     plt.imshow(np.log2(np.abs(cr) + 0.0001), cmap)
     plt.show()
 
+
+def split_matrix_blockwise(array, nrows, ncols):
+    """Split a matrix into sub-matrices."""
+
+    r, h = array.shape
+    return (array.reshape(h//nrows, nrows, -1, ncols)
+                 .swapaxes(1, 2)
+                 .reshape(-1, nrows, ncols))
 
 def encoder(image_data, show_plots=False):
     """
