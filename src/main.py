@@ -12,12 +12,12 @@ Tiago Filipe Santa Ventura, 2019243695, uc2019243695@student.uc.pt
 
 import os
 import numpy as np
-from PIL import Image
-from numpy import pi
 from numpy import r_
-from scipy.fftpack import dct, idct
 import matplotlib.pyplot as plt
 import matplotlib.colors as clr
+from PIL import Image
+from scipy.fftpack import dct, idct
+from astropy.nddata import reshape_as_blocks
 
 
 def show_images(images, name=None):
@@ -327,10 +327,30 @@ def up_sample(cb, cr, variant, f):
     return cb_up_sampled, cr_up_sampled
 
 
-def apply_dct_blocks(im, block_size, cmap):
-    #blocks = split_matrix_blockwise(im, block_size, block_size)
-    #dct_image = np.apply_along_axis(apply_dct, 1, blocks)
+def apply_dct_blocks_optimized(im, block_size, cmap):
+    blocks = split_matrix_blockwise(im, block_size)
+    dct_blocks = dct(dct(blocks, axis=2, norm="ortho"), axis=3, norm="ortho")
+    dct_image = join_matrix_blockwise(dct_blocks)
 
+    plt.figure()
+    plt.imshow(dct_image, cmap=cmap)
+    plt.title(str(block_size) + "x" + str(block_size) + " DCT blocks")
+
+    return dct_blocks
+
+
+def apply_inverse_dct_blocks_optimized(blocks, cmap):
+    idct_blocks = idct(idct(blocks, axis=2, norm="ortho"), axis=3, norm="ortho")
+    image = join_matrix_blockwise(idct_blocks)
+
+    plt.figure()
+    plt.imshow(image, cmap=cmap)
+    plt.title("IDCT blocks")
+
+    return image
+
+
+def apply_dct_blocks(im, block_size, cmap):
     imsize = im.shape
     dct_image = np.zeros(imsize)
 
@@ -458,9 +478,9 @@ def encoder(image_data, show_plots=False):
 
     #view_dct(y_idct, cb_idct, cr_idct, grey_cmap, "IDCT")
 
-    y_dct_blocks = apply_dct_blocks(y, 8, grey_cmap)
-    cb_dct_blocks = apply_dct_blocks(cb, 8, grey_cmap)
-    cr_dct_blocks = apply_dct_blocks(cr, 8, grey_cmap)
+    y_dct_blocks = apply_dct_blocks_optimized(y, 16, grey_cmap)
+    cb_dct_blocks = apply_dct_blocks_optimized(cb, 16, grey_cmap)
+    cr_dct_blocks = apply_dct_blocks_optimized(cr, 16, grey_cmap)
 
     return (y_dct_blocks, cb_dct_blocks, cr_dct_blocks), n_rows, n_cols
 
@@ -478,13 +498,15 @@ def decoder(encoded_image_data):
 
     Y_CB_CR_MATRIX = np.array([[0.299, 0.587, 0.114], [-0.168736, -0.331264, 0.5], [0.5, -0.418688, -0.081312]])
     Y_CB_CR_MATRIX_INVERSE = np.linalg.inv(Y_CB_CR_MATRIX)
+    GREY_CMAP_LIST = [(0, 0, 0), (1, 1, 1)]
+    grey_cmap = generate_linear_colormap(GREY_CMAP_LIST)
 
     y = encoded_image[0]
     cb = encoded_image[1]
     cr = encoded_image[2]
-    y_inverse_dct = apply_inverse_dct_blocks(encoded_image_name, y, 8)
-    cb_inverse_dct = apply_inverse_dct_blocks(encoded_image_name, cb, 8)
-    cr_inverse_dct = apply_inverse_dct_blocks(encoded_image_name, cr, 8)
+    y_inverse_dct = apply_inverse_dct_blocks_optimized(y, grey_cmap)
+    cb_inverse_dct = apply_inverse_dct_blocks_optimized(cb, grey_cmap)
+    cr_inverse_dct = apply_inverse_dct_blocks_optimized(cr, grey_cmap)
     cb_up_sampled, cr_up_sampled = up_sample(cb_inverse_dct, cr_inverse_dct, 1, 2)
     joined_channels_img = join_channels(y_inverse_dct, cb_up_sampled, cr_up_sampled)
     rgb_image = y_cb_cr_to_rgb(joined_channels_img, Y_CB_CR_MATRIX_INVERSE)
