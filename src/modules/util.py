@@ -1,7 +1,7 @@
 import numpy as np
 
 
-def separate_rgb(img):
+def separate_channels(img):
     """
              Separates the rgb channels of an image.
              :param img: the image.

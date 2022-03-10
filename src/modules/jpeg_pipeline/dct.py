@@ -88,3 +88,7 @@ def apply_inverse_dct(matrix_dct):
     matrix_idct = idct(idct(matrix_dct, norm="ortho").T, norm="ortho").T
 
     return matrix_idct
+
+
+def plot_f(image):
+    return np.log2(np.abs(image) + 0.0001)

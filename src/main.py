@@ -20,7 +20,7 @@ from modules.jpeg_pipeline.sampling import *
 from modules.jpeg_pipeline.y_cb_cr import *
 
 
-def encoder(image_data, show_plots=False):
+def encoder(image_data, down_sampling_variant, down_sampling_step, block_size, show_plots=False):
     """
                                        Enconder function.
                                        :param image_data: the image to encode.
@@ -32,19 +32,19 @@ def encoder(image_data, show_plots=False):
     n_rows = image_matrix.shape[0]
     n_cols = image_matrix.shape[1]
 
-    padded_image = apply_padding(image_matrix, IMAGE_SIZE_DIVISOR, 32)
+    padded_image = apply_padding(image_matrix, IMAGE_SIZE_DIVISOR, IMAGE_SIZE_DIVISOR)
     new_shape = padded_image.shape
     added_rows = str(new_shape[0] - n_rows)
     added_cols = str(new_shape[1] - n_cols)
 
     if show_plots:
-        show_images(padded_image, image_name + " - Padded - +" + added_rows + "|+" + added_cols)
+        show_images(padded_image, image_name + " - Padded - +" + added_rows + "|+" + added_cols, None, None)
 
-    r, g, b = separate_rgb(padded_image)
+    r, g, b = separate_channels(padded_image)
     if show_plots:
-        show_images(r, image_name + " - Red channel w/red cmap", RED_CMAP)
-        show_images(g, image_name + " - Green channel w/green cmap", GREEN_CMAP)
-        show_images(b, image_name + " - Blue channel w/blue cmap", BLUE_CMAP)
+        show_images(r, image_name + " - Red channel w/red cmap", RED_CMAP, None)
+        show_images(g, image_name + " - Green channel w/green cmap", GREEN_CMAP, None)
+        show_images(b, image_name + " - Blue channel w/blue cmap", BLUE_CMAP, None)
 
     y_cb_cr_image = rgb_to_y_cb_cr(padded_image, Y_CB_CR_MATRIX)
 
@@ -53,42 +53,42 @@ def encoder(image_data, show_plots=False):
     cr = y_cb_cr_image[:, :, 2]
 
     if show_plots:
-        show_images(y, image_name + " - Y channel w/grey cmap", GREY_CMAP)
-        show_images(cb, image_name + " - Cb channel w/grey cmap", GREY_CMAP)
-        show_images(cr, image_name+ "Cr channel w/grey cmap", GREY_CMAP)
+        show_images(y, image_name + " - Y channel w/grey cmap", GREY_CMAP, None)
+        show_images(cb, image_name + " - Cb channel w/grey cmap", GREY_CMAP, None)
+        show_images(cr, image_name+ " - Cr channel w/grey cmap", GREY_CMAP, None)
 
-    cb, cr = down_sample(cb, cr, 1, 2)
+    cb, cr = down_sample(cb, cr, down_sampling_variant, down_sampling_step)
 
     y_dct_total = apply_dct(y)
     cb_dct_total = apply_dct(cb)
     cr_dct_total = apply_dct(cr)
 
-    show_images(np.log2(np.abs(y_dct_total) + 0.0001), image_name + " - Total DCT - Y", GREY_CMAP)
-    show_images(np.log2(np.abs(cb_dct_total) + 0.0001), image_name + " - Total DCT - Cb", GREY_CMAP)
-    show_images(np.log2(np.abs(cr_dct_total) + 0.0001), image_name + " - Total DCT - Cr", GREY_CMAP)
+    show_images(y_dct_total, image_name + " - Total DCT - Y", GREY_CMAP, plot_f)
+    show_images(cb_dct_total, image_name + " - Total DCT - Cb", GREY_CMAP, plot_f)
+    show_images(cr_dct_total, image_name + " - Total DCT - Cr", GREY_CMAP, plot_f)
 
     y_idct_total = apply_inverse_dct(y_dct_total)
     cb_idct_total = apply_inverse_dct(cb_dct_total)
     cr_idct_total = apply_inverse_dct(cr_dct_total)
 
-    show_images(y_idct_total, image_name + " - Total Inverse DCT - Y", GREY_CMAP)
-    show_images(cb_idct_total, image_name + " - Total Inverse DCT - Cb", GREY_CMAP)
-    show_images(cr_idct_total, image_name + " - Total Inverse DCT - Cr", GREY_CMAP)
+    show_images(y_idct_total, image_name + " - Total Inverse DCT - Y", GREY_CMAP, None)
+    show_images(cb_idct_total, image_name + " - Total Inverse DCT - Cb", GREY_CMAP, None)
+    show_images(cr_idct_total, image_name + " - Total Inverse DCT - Cr", GREY_CMAP, None)
 
-    y_dct_blocks = apply_dct_blocks_optimized(y, BLOCK_SIZE)
-    cb_dct_blocks = apply_dct_blocks_optimized(cb, BLOCK_SIZE)
-    cr_dct_blocks = apply_dct_blocks_optimized(cr, BLOCK_SIZE)
+    y_dct_blocks = apply_dct_blocks_optimized(y, block_size)
+    cb_dct_blocks = apply_dct_blocks_optimized(cb, block_size)
+    cr_dct_blocks = apply_dct_blocks_optimized(cr, block_size)
 
     joined_y_dct_blocks = join_matrix_blockwise(y_dct_blocks)
     joined_cb_dct_blocks = join_matrix_blockwise(cb_dct_blocks)
     joined_cr_dct_blocks = join_matrix_blockwise(cr_dct_blocks)
 
-    title_blocks_dct = image_name + " - DCT by blocks " + str(BLOCK_SIZE) + "x" + str(BLOCK_SIZE)
-    show_images(joined_y_dct_blocks, title_blocks_dct + " - Y", GREY_CMAP)
-    show_images(joined_cb_dct_blocks, title_blocks_dct + " - Cb", GREY_CMAP)
-    show_images(joined_cr_dct_blocks, title_blocks_dct + " - Cr", GREY_CMAP)
+    title_blocks_dct = image_name + " - DCT by blocks " + str(block_size) + "x" + str(block_size)
+    show_images(joined_y_dct_blocks, title_blocks_dct + " - Y", GREY_CMAP, plot_f)
+    show_images(joined_cb_dct_blocks, title_blocks_dct + " - Cb", GREY_CMAP, plot_f)
+    show_images(joined_cr_dct_blocks, title_blocks_dct + " - Cr", GREY_CMAP, plot_f)
 
-    return (y_dct_blocks, cb_dct_blocks, cr_dct_blocks), n_rows, n_cols
+    return (y_dct_blocks, cb_dct_blocks, cr_dct_blocks), n_rows, n_cols, down_sampling_variant, down_sampling_step, block_size
 
 
 def decoder(encoded_image_data):
@@ -101,23 +101,21 @@ def decoder(encoded_image_data):
     encoded_image = encoded_image_data[1]
     original_rows = encoded_image_data[2]
     original_cols = encoded_image_data[3]
-
-    Y_CB_CR_MATRIX = np.array([[0.299, 0.587, 0.114], [-0.168736, -0.331264, 0.5], [0.5, -0.418688, -0.081312]])
-    Y_CB_CR_MATRIX_INVERSE = np.linalg.inv(Y_CB_CR_MATRIX)
-    GREY_CMAP_LIST = [(0, 0, 0), (1, 1, 1)]
-    grey_cmap = generate_linear_colormap(GREY_CMAP_LIST)
+    down_sampling_variant = encoded_image_data[4]
+    down_sampling_step = encoded_image_data[5]
+    block_size = encoded_image_data[6]
 
     y = encoded_image[0]
     cb = encoded_image[1]
     cr = encoded_image[2]
-    y_inverse_dct = apply_inverse_dct_blocks_optimized(y, grey_cmap)
-    cb_inverse_dct = apply_inverse_dct_blocks_optimized(cb, grey_cmap)
-    cr_inverse_dct = apply_inverse_dct_blocks_optimized(cr, grey_cmap)
-    cb_up_sampled, cr_up_sampled = up_sample(cb_inverse_dct, cr_inverse_dct, 1, 2)
+    y_inverse_dct = apply_inverse_dct_blocks_optimized(y)
+    cb_inverse_dct = apply_inverse_dct_blocks_optimized(cb)
+    cr_inverse_dct = apply_inverse_dct_blocks_optimized(cr)
+    cb_up_sampled, cr_up_sampled = up_sample(cb_inverse_dct, cr_inverse_dct, down_sampling_variant, down_sampling_step)
     joined_channels_img = join_channels(y_inverse_dct, cb_up_sampled, cr_up_sampled)
     rgb_image = y_cb_cr_to_rgb(joined_channels_img, Y_CB_CR_MATRIX_INVERSE)
     unpadded_image = reverse_padding(rgb_image, original_rows, original_cols)
-    show_images(unpadded_image, encoded_image_name + " - Decompressed")
+    show_images(unpadded_image, encoded_image_name + " - Decompressed", None, None)
 
     decoded_image = unpadded_image
 
@@ -142,20 +140,25 @@ def main():
     orig_img_dir = cwd + ORIGINAL_IMAGE_DIRECTORY
     comp_img_dir = cwd + COMPRESSED_IMAGE_DIRECTORY
 
+    down_sampling_variant = eval(input("Down sampling variant: "))
+    down_sampling_step = eval(input("Down sampling step: "))
+    block_size = eval(input("Block size: "))
+
     original_images = read_images(orig_img_dir, ORIGINAL_IMAGE_EXTENSION)
-    show_images(original_images)
+    show_images(original_images, None, None, None)
     jpeg_compress_images(orig_img_dir, ORIGINAL_IMAGE_EXTENSION, comp_img_dir, JPEG_QUALITY_RATES)
 
     encoded_images = dict()
 
     for image_name in original_images.keys():
-        result = encoder((image_name, original_images[image_name]), True)
-        encoded_images[image_name] = (result[0], result[1], result[2])
+        result = encoder((image_name, original_images[image_name]),
+                         down_sampling_variant, down_sampling_step, block_size, show_plots=True)
+        encoded_images[image_name] = (result[0], result[1], result[2], result[3], result[4], result[5])
 
     decoded_images = dict()
     for encoded_image_name in encoded_images.keys():
         data = encoded_images[encoded_image_name]
-        result = decoder((encoded_image_name, data[0], data[1], data[2]))
+        result = decoder((encoded_image_name, data[0], data[1], data[2], data[3], data[4], data[5]))
         decoded_images[encoded_image_name] = result
 
         if image_equals(original_images[encoded_image_name], result):

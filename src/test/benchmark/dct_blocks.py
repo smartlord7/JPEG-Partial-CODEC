@@ -84,10 +84,10 @@ def main():
     #step = eval(input("Step: "))
     #block_size = eval(input("Block size: "))
 
-    trials = 10
+    trials = 5
     min_side = 160
-    max_side = 16 * 100
-    step = 16
+    max_side = 16 * 500
+    step = 16 * 4
     block_size = 16
 
     times = run(trials, min_side, max_side, block_size, step)

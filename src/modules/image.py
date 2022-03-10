@@ -4,15 +4,18 @@ from PIL import Image
 from matplotlib import pyplot as plt
 
 
-def _show_image(image, name=None, cmap=None):
+def _show_image(image, name, cmap, func):
     plt.figure()
     if name:
         plt.title(name)
-    plt.imshow(image, cmap)
+    if func:
+        plt.imshow(func(image), cmap)
+    else:
+        plt.imshow(image, cmap)
     plt.show()
 
 
-def show_images(images, name=None, cmap=None):
+def show_images(images, name, cmap, func):
     """
       Given one or more images,this function will show them in order
       :param images: the image(s) to show.
@@ -23,12 +26,12 @@ def show_images(images, name=None, cmap=None):
 
     if t == dict:
         for image_name in images:
-            _show_image(images[image_name], name=image_name, cmap=cmap)
+            _show_image(images[image_name], image_name, cmap, func)
     elif t == list:
         for image in images:
-            _show_image(image, name=name, cmap=cmap)
+            _show_image(image, name, cmap, func)
     else:
-        _show_image(images, name=name, cmap=cmap)
+        _show_image(images, name, cmap, func)
 
 
 def read_images(directory, ext):
