@@ -62,9 +62,9 @@ def encoder(image_data, show_plots=False):
 
     r, g, b = separate_rgb(padded_image, show_plots)
     if show_plots:
-        plot_image_colormap(r, red_cmap,"Red")
-        plot_image_colormap(g, green_cmap,"Green")
-        plot_image_colormap(b, blue_cmap,"Blue")
+        show_images(r, red_cmap, "Red")
+        show_images(g, green_cmap, "Green")
+        show_images(b, blue_cmap, "Blue")
 
     y_cb_cr_image = rgb_to_y_cb_cr(padded_image, Y_CB_CR_MATRIX, show_plots)
 
@@ -73,9 +73,9 @@ def encoder(image_data, show_plots=False):
     cr = y_cb_cr_image[:, :, 2]
 
     if show_plots:
-        plot_image_colormap(y, grey_cmap, "Y")
-        plot_image_colormap(cb, grey_cmap, "Cb")
-        plot_image_colormap(cr, grey_cmap, "Cr")
+        show_images(y, grey_cmap, "Y")
+        show_images(cb, grey_cmap, "Cb")
+        show_images(cr, grey_cmap, "Cr")
 
     cb, cr = down_sample(cb, cr, 1, 2)
 

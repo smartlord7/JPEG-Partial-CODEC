@@ -4,7 +4,15 @@ from PIL import Image
 from matplotlib import pyplot as plt
 
 
-def show_images(images, name=None):
+def _show_image(image, name=None, cmap=None):
+    plt.figure()
+    if name:
+        plt.title(name)
+    plt.imshow(image, cmap)
+    plt.show()
+
+
+def show_images(images, name=None, cmap=None):
     """
       Given one or more images,this function will show them in order
       :param images: the image(s) to show.
@@ -15,21 +23,12 @@ def show_images(images, name=None):
 
     if t == dict:
         for image_name in images:
-            plt.figure()
-            plt.title(image_name)
-            plt.imshow(images[image_name])
-            plt.show()
+            _show_image(images[image_name], name, cmap)
     elif t == list:
         for image in images:
-            plt.figure()
-            plt.title(name)
-            plt.imshow(image)
-            plt.show()
+            _show_image(image, name, cmap)
     else:
-        plt.figure()
-        plt.title(name)
-        plt.imshow(images)
-        plt.show()
+        _show_image(images, name, cmap)
 
 
 def read_images(directory, ext):
@@ -76,15 +75,3 @@ def generate_linear_colormap(color_list):
     colormap = clr.LinearSegmentedColormap.from_list('cmap', color_list, N=256)
 
     return colormap
-
-
-def plot_image_colormap(image_channel, cmap, name=None):
-    """
-                               Plot the images with the colormap.
-                              :param image_channel: the channel to use in the colormap.
-                              :return:
-    """
-    plt.figure()
-    plt.title(name)
-    plt.imshow(image_channel, cmap)
-    plt.show()
