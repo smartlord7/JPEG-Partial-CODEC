@@ -18,21 +18,6 @@ from modules.jpeg_pipeline.y_cb_cr import *
 from modules.util import *
 
 
-def view_dct(y, cb, cr, cmap, name):
-    plt.figure()
-    plt.title(name + " Y")
-    plt.imshow(np.log2(np.abs(y) + 0.0001), cmap)
-    plt.show()
-    plt.figure()
-    plt.title(name + " Cb")
-    plt.imshow(np.log2(np.abs(cb) + 0.0001), cmap)
-    plt.show()
-    plt.figure()
-    plt.title(name + " Cr")
-    plt.imshow(np.log2(np.abs(cr) + 0.0001), cmap)
-    plt.show()
-
-
 def encoder(image_data, show_plots=False):
     """
                                        Enconder function.
