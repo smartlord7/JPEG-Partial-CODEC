@@ -16,6 +16,7 @@ def join_matrix_blockwise(blocks):
 
     return np.concatenate(np.concatenate(blocks, axis=1), axis=1)
 
+
 def apply_dct_blocks_optimized(im, block_size, cmap):
     blocks = split_matrix_blockwise(im, block_size)
     dct_blocks = dct(dct(blocks, axis=2, norm="ortho"), axis=3, norm="ortho")

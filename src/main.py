@@ -9,7 +9,7 @@ Sancho Amaral Simões, 2019217590, uc2019217590@student.uc.pt
 Tiago Filipe Santa Ventura, 2019243695, uc2019243695@student.uc.pt
 19/12/2020
 ---------------------------------------------------------------------------"""
-
+from modules.const import *
 from modules.dct import *
 from modules.image import *
 from modules.jpeg_pipeline.padding import *
@@ -42,17 +42,6 @@ def encoder(image_data, show_plots=False):
     """
     image_name = image_data[0]
     image_matrix = image_data[1]
-
-    Y_CB_CR_MATRIX = np.array([[0.299, 0.587, 0.114], [-0.168736, -0.331264, 0.5], [0.5, -0.418688, -0.081312]])
-    GREY_CMAP_LIST = [(0, 0, 0), (1, 1, 1)]
-    RED_CMAP_LIST = [(0, 0, 0), (1, 0, 0)]
-    GREEN_CMAP_LIST = [(0, 0, 0), (0, 1, 0)]
-    BLUE_CMAP_LIST = [(0, 0, 0), (0, 0, 1)]
-
-    grey_cmap = generate_linear_colormap(GREY_CMAP_LIST)
-    red_cmap = generate_linear_colormap(RED_CMAP_LIST)
-    green_cmap = generate_linear_colormap(GREEN_CMAP_LIST)
-    blue_cmap = generate_linear_colormap(BLUE_CMAP_LIST)
     n_rows = image_matrix.shape[0]
     n_cols = image_matrix.shape[1]
 
@@ -62,9 +51,9 @@ def encoder(image_data, show_plots=False):
 
     r, g, b = separate_rgb(padded_image, show_plots)
     if show_plots:
-        show_images(r, red_cmap, "Red")
-        show_images(g, green_cmap, "Green")
-        show_images(b, blue_cmap, "Blue")
+        show_images(r, "Red", RED_CMAP)
+        show_images(g, "Green", GREEN_CMAP)
+        show_images(b, "Blue", BLUE_CMAP)
 
     y_cb_cr_image = rgb_to_y_cb_cr(padded_image, Y_CB_CR_MATRIX, show_plots)
 
@@ -73,27 +62,31 @@ def encoder(image_data, show_plots=False):
     cr = y_cb_cr_image[:, :, 2]
 
     if show_plots:
-        show_images(y, grey_cmap, "Y")
-        show_images(cb, grey_cmap, "Cb")
-        show_images(cr, grey_cmap, "Cr")
+        show_images(y, "Y", GREY_CMAP)
+        show_images(cb, "Cb", GREY_CMAP)
+        show_images(cr, "Cr", GREY_CMAP)
 
     cb, cr = down_sample(cb, cr, 1, 2)
 
-    #y_dct_total = apply_dct(y)
-    #cb_dct_total = apply_dct(cb)
-    #cr_dct_total = apply_dct(cr)
+    y_dct_total = apply_dct(y)
+    cb_dct_total = apply_dct(cb)
+    cr_dct_total = apply_dct(cr)
 
-    #view_dct(y_dct_total, cb_dct_total, cr_dct_total, grey_cmap, "DCT")
+    show_images(y_dct_total, image_name + " - Total DCT - Y", GREY_CMAP)
+    show_images(cb_dct_total, image_name + " - Total DCT - Cb", GREY_CMAP)
+    show_images(cr_dct_total, image_name + " - Total DCT - Cr", GREY_CMAP)
 
-    #y_idct = apply_inverse_dct(y_dct_total)
-    #cb_idct = apply_inverse_dct(cb_dct_total)
-    #cr_idct = apply_inverse_dct(cr_dct_total)
+    y_idct_total = apply_inverse_dct(y_dct_total)
+    cb_idct_total = apply_inverse_dct(cb_dct_total)
+    cr_idct_total = apply_inverse_dct(cr_dct_total)
 
-    #view_dct(y_idct, cb_idct, cr_idct, grey_cmap, "IDCT")
+    show_images(y_idct_total, image_name + " - Total Inverse DCT - Y", GREY_CMAP)
+    show_images(cb_idct_total, image_name + " - Total Inverse DCT - Cb", GREY_CMAP)
+    show_images(cr_idct_total, image_name + " - Total Inverse DCT - Cr", GREY_CMAP)
 
-    y_dct_blocks = apply_dct_blocks_optimized(y, 16, grey_cmap)
-    cb_dct_blocks = apply_dct_blocks_optimized(cb, 16, grey_cmap)
-    cr_dct_blocks = apply_dct_blocks_optimized(cr, 16, grey_cmap)
+    y_dct_blocks = apply_dct_blocks_optimized(y, 16, GREY_CMAP)
+    cb_dct_blocks = apply_dct_blocks_optimized(cb, 16, GREY_CMAP)
+    cr_dct_blocks = apply_dct_blocks_optimized(cr, 16, GREY_CMAP)
 
     return (y_dct_blocks, cb_dct_blocks, cr_dct_blocks), n_rows, n_cols
 
@@ -145,13 +138,11 @@ def main():
     """
     Main function
     """
-    CWD = os.getcwd()
-    ORIGINAL_IMAGE_DIRECTORY = CWD + '\\resources\\img\\original_img\\'
-    ORIGINAL_IMAGE_EXTENSION = '.bmp'
-    COMPRESSED_IMAGE_DIRECTORY = CWD + '\\jpeg_compressed_img'
-    JPEG_QUALITY_RATES = [25, 50, 75]
+    cwd = os.getcwd()
+    orig_img_dir = cwd + ORIGINAL_IMAGE_DIRECTORY
+    comp_img_dir = cwd + COMPRESSED_IMAGE_DIRECTORY
 
-    original_images = read_images(ORIGINAL_IMAGE_DIRECTORY, ORIGINAL_IMAGE_EXTENSION)
+    original_images = read_images(orig_img_dir, ORIGINAL_IMAGE_EXTENSION)
     #show_images(original_images)
     #jpeg_compress_images(ORIGINAL_IMAGE_DIRECTORY, ORIGINAL_IMAGE_EXTENSION, COMPRESSED_IMAGE_DIRECTORY, JPEG_QUALITY_RATES)
 
