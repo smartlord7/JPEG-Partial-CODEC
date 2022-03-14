@@ -1,6 +1,7 @@
 import os
-import matplotlib.colors as clr
+import numpy as np
 from PIL import Image
+import matplotlib.colors as clr
 from matplotlib import pyplot as plt
 
 
@@ -84,3 +85,13 @@ def generate_linear_colormap(color_list):
     colormap = clr.LinearSegmentedColormap.from_list('cmap', color_list, N=256)
 
     return colormap
+
+
+def image_equals(original_image, decoded_image):
+    """
+                                           Verifies if the images are equal.
+                                           :param original_image: original image.
+                                           :param decoded_image: decoded image.
+                                           :return: if the image is equal or no.
+    """
+    return np.allclose(original_image, decoded_image)
