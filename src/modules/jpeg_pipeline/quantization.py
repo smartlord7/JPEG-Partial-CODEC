@@ -12,9 +12,12 @@ def get_scaled_quantization_matrix(quality_factor, quantization_matrix):
     scale_factor = get_scale_factor(quality_factor)
 
     if scale_factor == 0:
-        return quantization_matrix
+        return np.ones((quantization_matrix.shape[0], quantization_matrix.shape[1]))
 
-    return quantization_matrix * scale_factor
+    scaled_quantization_matrix = quantization_matrix * scale_factor
+    scaled_quantization_matrix[quantization_matrix * scale_factor > 255] = 255
+
+    return scaled_quantization_matrix
 
 
 def apply_quantization(matrix, quality_factor, quantization_matrix):
