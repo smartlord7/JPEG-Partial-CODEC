@@ -6,6 +6,23 @@ ORIGINAL_IMAGE_EXTENSION = '.bmp'
 COMPRESSED_IMAGE_DIRECTORY = '\\resources\\img\\jpeg_compressed_img'
 
 JPEG_QUALITY_RATES = [25, 50, 75]
+JPEG_QUANTIZATION_Y = np.array([[16, 11, 10, 16,  24,  40,  51,  61],
+               [12, 12, 14, 19,  26,  58,  60,  55],
+               [14, 13, 16, 24,  40,  57,  69,  56],
+               [14, 17, 22, 29,  51,  87,  80,  62],
+               [18, 22, 37, 56,  68, 109, 103,  77],
+               [24, 35, 55, 64,  81, 104, 113,  92],
+               [49, 64, 78, 87, 103, 121, 120, 101],
+               [72, 92, 95, 98, 112, 100, 103,  99]])
+JPEG_QUANTIZATION_CB_CR = np.array([[17, 18, 24, 47, 99, 99, 99, 99],
+               [18, 21, 26, 66, 99, 99, 99, 99],
+               [24, 26, 56, 99, 99, 99, 99, 99],
+               [47, 66, 99, 99, 99, 99, 99, 99],
+               [99, 99, 99, 99, 99, 99, 99, 99],
+               [99, 99, 99, 99, 99, 99, 99, 99],
+               [99, 99, 99, 99, 99, 99, 99, 99],
+               [99, 99, 99, 99, 99, 99, 99, 99]])
+
 
 Y_CB_CR_MATRIX = np.array([[0.299, 0.587, 0.114], [-0.168736, -0.331264, 0.5], [0.5, -0.418688, -0.081312]])
 Y_CB_CR_MATRIX_INVERSE = np.linalg.inv(Y_CB_CR_MATRIX)
@@ -18,6 +35,3 @@ GREY_CMAP = generate_linear_colormap(GREY_CMAP_LIST)
 RED_CMAP = generate_linear_colormap(RED_CMAP_LIST)
 GREEN_CMAP = generate_linear_colormap(GREEN_CMAP_LIST)
 BLUE_CMAP = generate_linear_colormap(BLUE_CMAP_LIST)
-
-IMAGE_SIZE_DIVISOR = 32
-BLOCK_SIZE = 8

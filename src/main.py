@@ -16,11 +16,12 @@ from modules.image import *
 from modules.const import *
 from modules.jpeg_pipeline.dct import *
 from modules.jpeg_pipeline.padding import *
-from modules.jpeg_pipeline.sampling import *
 from modules.jpeg_pipeline.y_cb_cr import *
+from modules.jpeg_pipeline.sampling import *
+from modules.jpeg_pipeline.quantization import *
 
 
-def encoder(image_data, down_sampling_variant, down_sampling_step, block_size, show_plots=False):
+def encoder(image_data, down_sampling_variant, down_sampling_step, block_size, quality_factor, show_plots=False):
     """
                                        Enconder function.
                                        :param image_data: the image to encode.
@@ -32,7 +33,7 @@ def encoder(image_data, down_sampling_variant, down_sampling_step, block_size, s
     n_rows = image_matrix.shape[0]
     n_cols = image_matrix.shape[1]
 
-    padded_image = apply_padding(image_matrix, IMAGE_SIZE_DIVISOR, IMAGE_SIZE_DIVISOR)
+    padded_image = apply_padding(image_matrix, down_sampling_step * block_size, down_sampling_step * block_size)
     new_shape = padded_image.shape
     added_rows = str(new_shape[0] - n_rows)
     added_cols = str(new_shape[1] - n_cols)
@@ -63,17 +64,19 @@ def encoder(image_data, down_sampling_variant, down_sampling_step, block_size, s
     cb_dct_total = apply_dct(cb)
     cr_dct_total = apply_dct(cr)
 
-    show_images(y_dct_total, image_name + " - Total DCT - Y", GREY_CMAP, plot_f)
-    show_images(cb_dct_total, image_name + " - Total DCT - Cb", GREY_CMAP, plot_f)
-    show_images(cr_dct_total, image_name + " - Total DCT - Cr", GREY_CMAP, plot_f)
+    if show_plots:
+        show_images(y_dct_total, image_name + " - Total DCT - Y", GREY_CMAP, plot_f)
+        show_images(cb_dct_total, image_name + " - Total DCT - Cb", GREY_CMAP, plot_f)
+        show_images(cr_dct_total, image_name + " - Total DCT - Cr", GREY_CMAP, plot_f)
 
     y_idct_total = apply_inverse_dct(y_dct_total)
     cb_idct_total = apply_inverse_dct(cb_dct_total)
     cr_idct_total = apply_inverse_dct(cr_dct_total)
 
-    show_images(y_idct_total, image_name + " - Total Inverse DCT - Y", GREY_CMAP, None)
-    show_images(cb_idct_total, image_name + " - Total Inverse DCT - Cb", GREY_CMAP, None)
-    show_images(cr_idct_total, image_name + " - Total Inverse DCT - Cr", GREY_CMAP, None)
+    if show_plots:
+        show_images(y_idct_total, image_name + " - Total Inverse DCT - Y", GREY_CMAP, None)
+        show_images(cb_idct_total, image_name + " - Total Inverse DCT - Cb", GREY_CMAP, None)
+        show_images(cr_idct_total, image_name + " - Total Inverse DCT - Cr", GREY_CMAP, None)
 
     y_dct_blocks = apply_dct_blocks_optimized(y, block_size)
     cb_dct_blocks = apply_dct_blocks_optimized(cb, block_size)
@@ -83,12 +86,18 @@ def encoder(image_data, down_sampling_variant, down_sampling_step, block_size, s
     joined_cb_dct_blocks = join_matrix_blockwise(cb_dct_blocks)
     joined_cr_dct_blocks = join_matrix_blockwise(cr_dct_blocks)
 
-    title_blocks_dct = image_name + " - DCT by blocks " + str(block_size) + "x" + str(block_size)
-    show_images(joined_y_dct_blocks, title_blocks_dct + " - Y", GREY_CMAP, plot_f)
-    show_images(joined_cb_dct_blocks, title_blocks_dct + " - Cb", GREY_CMAP, plot_f)
-    show_images(joined_cr_dct_blocks, title_blocks_dct + " - Cr", GREY_CMAP, plot_f)
+    if show_plots:
+        title_blocks_dct = image_name + " - DCT by blocks " + str(block_size) + "x" + str(block_size)
+        show_images(joined_y_dct_blocks, title_blocks_dct + " - Y", GREY_CMAP, plot_f)
+        show_images(joined_cb_dct_blocks, title_blocks_dct + " - Cb", GREY_CMAP, plot_f)
+        show_images(joined_cr_dct_blocks, title_blocks_dct + " - Cr", GREY_CMAP, plot_f)
 
-    return (y_dct_blocks, cb_dct_blocks, cr_dct_blocks), n_rows, n_cols, down_sampling_variant, down_sampling_step, block_size
+    y_blocks_quantized = apply_quantization(y_dct_blocks, quality_factor, JPEG_QUANTIZATION_Y)
+    cb_blocks_quantized = apply_quantization(cb_dct_blocks, quality_factor, JPEG_QUANTIZATION_CB_CR)
+    cr_blocks_quantized = apply_quantization(cr_dct_blocks, quality_factor, JPEG_QUANTIZATION_CB_CR)
+
+    return (y_blocks_quantized, cb_blocks_quantized, cr_blocks_quantized), n_rows, \
+           n_cols, down_sampling_variant, down_sampling_step, block_size, quality_factor
 
 
 def decoder(encoded_image_data):
@@ -104,13 +113,17 @@ def decoder(encoded_image_data):
     down_sampling_variant = encoded_image_data[4]
     down_sampling_step = encoded_image_data[5]
     block_size = encoded_image_data[6]
+    quality_factor = encoded_image_data[7]
 
     y = encoded_image[0]
     cb = encoded_image[1]
     cr = encoded_image[2]
-    y_inverse_dct = apply_inverse_dct_blocks_optimized(y)
-    cb_inverse_dct = apply_inverse_dct_blocks_optimized(cb)
-    cr_inverse_dct = apply_inverse_dct_blocks_optimized(cr)
+    y_dequantized = apply_inverse_quantization(y, quality_factor, JPEG_QUANTIZATION_Y)
+    cb_dequantized = apply_inverse_quantization(cb, quality_factor, JPEG_QUANTIZATION_CB_CR)
+    cr_dequantized = apply_inverse_quantization(cr, quality_factor, JPEG_QUANTIZATION_CB_CR)
+    y_inverse_dct = apply_inverse_dct_blocks_optimized(y_dequantized)
+    cb_inverse_dct = apply_inverse_dct_blocks_optimized(cb_dequantized)
+    cr_inverse_dct = apply_inverse_dct_blocks_optimized(cr_dequantized)
     cb_up_sampled, cr_up_sampled = up_sample(cb_inverse_dct, cr_inverse_dct, down_sampling_variant, down_sampling_step)
     joined_channels_img = join_channels(y_inverse_dct, cb_up_sampled, cr_up_sampled)
     rgb_image = y_cb_cr_to_rgb(joined_channels_img, Y_CB_CR_MATRIX_INVERSE)
@@ -143,22 +156,25 @@ def main():
     down_sampling_variant = eval(input("Down sampling variant: "))
     down_sampling_step = eval(input("Down sampling step: "))
     block_size = eval(input("Block size: "))
+    quality_factor = eval(input("Quality factor: "))
+    show_plots = False
 
     original_images = read_images(orig_img_dir, ORIGINAL_IMAGE_EXTENSION)
-    show_images(original_images, None, None, None)
-    jpeg_compress_images(orig_img_dir, ORIGINAL_IMAGE_EXTENSION, comp_img_dir, JPEG_QUALITY_RATES)
+    if show_plots:
+        show_images(original_images, None, None, None)
+        jpeg_compress_images(orig_img_dir, ORIGINAL_IMAGE_EXTENSION, comp_img_dir, JPEG_QUALITY_RATES)
 
     encoded_images = dict()
 
     for image_name in original_images.keys():
         result = encoder((image_name, original_images[image_name]),
-                         down_sampling_variant, down_sampling_step, block_size, show_plots=True)
-        encoded_images[image_name] = (result[0], result[1], result[2], result[3], result[4], result[5])
+                         down_sampling_variant, down_sampling_step, block_size, quality_factor, show_plots=False)
+        encoded_images[image_name] = (result[0], result[1], result[2], result[3], result[4], result[5], result[6])
 
     decoded_images = dict()
     for encoded_image_name in encoded_images.keys():
         data = encoded_images[encoded_image_name]
-        result = decoder((encoded_image_name, data[0], data[1], data[2], data[3], data[4], data[5]))
+        result = decoder((encoded_image_name, data[0], data[1], data[2], data[3], data[4], data[5], data[6]))
         decoded_images[encoded_image_name] = result
 
         if image_equals(original_images[encoded_image_name], result):
