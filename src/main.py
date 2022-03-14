@@ -15,6 +15,7 @@ from modules.util import *
 from modules.image import *
 from modules.const import *
 from modules.jpeg_pipeline.dct import *
+from modules.jpeg_pipeline.dpcm import *
 from modules.jpeg_pipeline.padding import *
 from modules.jpeg_pipeline.y_cb_cr import *
 from modules.jpeg_pipeline.sampling import *
@@ -86,8 +87,8 @@ def encoder(image_data, down_sampling_variant, down_sampling_step, block_size, q
     joined_cb_dct_blocks = join_matrix_blockwise(cb_dct_blocks)
     joined_cr_dct_blocks = join_matrix_blockwise(cr_dct_blocks)
 
+    title_blocks_dct = image_name + " - DCT by blocks " + str(block_size) + "x" + str(block_size)
     if show_plots:
-        title_blocks_dct = image_name + " - DCT by blocks " + str(block_size) + "x" + str(block_size)
         show_images(joined_y_dct_blocks, title_blocks_dct + " - Y", GREY_CMAP, plot_f)
         show_images(joined_cb_dct_blocks, title_blocks_dct + " - Cb", GREY_CMAP, plot_f)
         show_images(joined_cr_dct_blocks, title_blocks_dct + " - Cr", GREY_CMAP, plot_f)
@@ -95,6 +96,11 @@ def encoder(image_data, down_sampling_variant, down_sampling_step, block_size, q
     y_blocks_quantized = apply_quantization(y_dct_blocks, quality_factor, JPEG_QUANTIZATION_Y)
     cb_blocks_quantized = apply_quantization(cb_dct_blocks, quality_factor, JPEG_QUANTIZATION_CB_CR)
     cr_blocks_quantized = apply_quantization(cr_dct_blocks, quality_factor, JPEG_QUANTIZATION_CB_CR)
+
+    y_blocks_dpcm = apply_dpcm_encoding(y_blocks_quantized.copy())
+    title_blocks_dct += " w/DC DPCM"
+    show_images(join_matrix_blockwise(y_blocks_dpcm), title_blocks_dct + " - Y", GREY_CMAP, plot_f)
+
 
     return (y_blocks_quantized, cb_blocks_quantized, cr_blocks_quantized), n_rows, \
            n_cols, down_sampling_variant, down_sampling_step, block_size, quality_factor
@@ -153,10 +159,30 @@ def main():
     orig_img_dir = cwd + ORIGINAL_IMAGE_DIRECTORY
     comp_img_dir = cwd + COMPRESSED_IMAGE_DIRECTORY
 
-    down_sampling_variant = eval(input("Down sampling variant: "))
-    down_sampling_step = eval(input("Down sampling step: "))
-    block_size = eval(input("Block size: "))
-    quality_factor = eval(input("Quality factor: "))
+    down_sampling_variant = input("Down sampling variant: ")
+    if not down_sampling_variant:
+        down_sampling_variant = 1
+    else:
+        down_sampling_variant = eval(down_sampling_variant)
+
+    down_sampling_step = input("Down sampling step: ")
+    if not down_sampling_step:
+        down_sampling_step = 2
+    else:
+        down_sampling_step = eval(down_sampling_step)
+
+    block_size = input("Block size: ")
+    if not block_size:
+        block_size = 8
+    else:
+        block_size = eval(block_size)
+
+    quality_factor = input("Quality factor: ")
+    if not quality_factor:
+        quality_factor = 50
+    else:
+        quality_factor = eval(quality_factor)
+
     show_plots = False
 
     original_images = read_images(orig_img_dir, ORIGINAL_IMAGE_EXTENSION)
