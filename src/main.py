@@ -97,12 +97,18 @@ def encoder(image_data, down_sampling_variant, down_sampling_step, block_size, q
     cb_blocks_quantized = apply_quantization(cb_dct_blocks, quality_factor, JPEG_QUANTIZATION_CB_CR)
     cr_blocks_quantized = apply_quantization(cr_dct_blocks, quality_factor, JPEG_QUANTIZATION_CB_CR)
 
-    y_blocks_dpcm = apply_dpcm_encoding(y_blocks_quantized.copy())
-    title_blocks_dct += " w/DC DPCM"
-    show_images(join_matrix_blockwise(y_blocks_dpcm), title_blocks_dct + " - Y", GREY_CMAP, plot_f)
+    title_blocks_quantized = image_name + " - DCT by blocks " + str(block_size) + "x" + str(block_size) + \
+                             " w/quantization qual. " + str(quality_factor)
+    if show_plots:
+        show_images(join_matrix_blockwise(y_blocks_quantized), title_blocks_quantized + " - Y", GREY_CMAP, plot_f)
+        show_images(join_matrix_blockwise(cb_blocks_quantized), title_blocks_quantized + " - Cb", GREY_CMAP, plot_f)
+        show_images(join_matrix_blockwise(cr_blocks_quantized), title_blocks_quantized + " - Cr", GREY_CMAP, plot_f)
 
+    y_blocks_dpcm = apply_dpcm_encoding(y_blocks_quantized)
+    cb_blocks_dpcm = apply_dpcm_encoding(cb_blocks_quantized)
+    cr_blocks_dpcm = apply_dpcm_encoding(cr_blocks_quantized)
 
-    return (y_blocks_quantized, cb_blocks_quantized, cr_blocks_quantized), n_rows, \
+    return (y_blocks_dpcm, cb_blocks_dpcm, cr_blocks_dpcm), n_rows, \
            n_cols, down_sampling_variant, down_sampling_step, block_size, quality_factor
 
 
@@ -124,9 +130,13 @@ def decoder(encoded_image_data):
     y = encoded_image[0]
     cb = encoded_image[1]
     cr = encoded_image[2]
-    y_dequantized = apply_inverse_quantization(y, quality_factor, JPEG_QUANTIZATION_Y)
-    cb_dequantized = apply_inverse_quantization(cb, quality_factor, JPEG_QUANTIZATION_CB_CR)
-    cr_dequantized = apply_inverse_quantization(cr, quality_factor, JPEG_QUANTIZATION_CB_CR)
+
+    y_idpcm = apply_dpcm_decoding(y)
+    cb_idpcm = apply_dpcm_decoding(cb)
+    cr_idpcm = apply_dpcm_decoding(cr)
+    y_dequantized = apply_inverse_quantization(y_idpcm, quality_factor, JPEG_QUANTIZATION_Y)
+    cb_dequantized = apply_inverse_quantization(cb_idpcm, quality_factor, JPEG_QUANTIZATION_CB_CR)
+    cr_dequantized = apply_inverse_quantization(cr_idpcm, quality_factor, JPEG_QUANTIZATION_CB_CR)
     y_inverse_dct = apply_inverse_dct_blocks_optimized(y_dequantized)
     cb_inverse_dct = apply_inverse_dct_blocks_optimized(cb_dequantized)
     cr_inverse_dct = apply_inverse_dct_blocks_optimized(cr_dequantized)

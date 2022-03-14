@@ -10,5 +10,10 @@ def apply_dpcm_encoding(blocks):
     return blocks
 
 
-def apply_dpcm_decoding():
-    pass
+def apply_dpcm_decoding(blocks):
+    dc_coefficients = np.ravel(blocks[:, :, 0, 0])
+    dc_coefficients = np.cumsum(dc_coefficients)
+    dc_coefficients = dc_coefficients.reshape((blocks.shape[0], blocks.shape[1]))
+    blocks[:, :, 0, 0] = dc_coefficients
+
+    return blocks
