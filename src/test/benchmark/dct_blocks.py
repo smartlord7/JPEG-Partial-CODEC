@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 
 
 def run(trials, min_side, max_side, block_size, step):
+    """Function to run and calculate the time of the DCT"""
     times = list()
     times.append(list())
     times.append(list())
@@ -78,6 +79,7 @@ def run(trials, min_side, max_side, block_size, step):
 
 
 def main():
+    """ Main function """
     #trials = eval(input("Trials: "))
     #min_side = eval(input("Min side: "))
     #max_side = eval(input("Max side: "))

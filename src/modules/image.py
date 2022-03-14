@@ -5,6 +5,12 @@ from matplotlib import pyplot as plt
 
 
 def _show_image(image, name, cmap, func):
+    """
+      Given one image,the title and a color map this function will show the image with the title and the applied colormap
+      :param image: the image to show.
+      :param name: the name of the image to show.
+      :param cmap: the color map to be applied.
+    """
     plt.figure()
     if name:
         plt.title(name)
