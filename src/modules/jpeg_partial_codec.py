@@ -1,3 +1,4 @@
+from modules.metrics import show_jpeg_metrics
 from modules.util import *
 from modules.const import *
 from modules.image import *
@@ -119,7 +120,7 @@ def encoder(image_data, down_sample_variant, block_size, quality_factor, show_pl
     cr_blocks_dpcm = apply_dpcm_encoding(cr_blocks_quantized)
 
     return (y_blocks_dpcm, cb_blocks_dpcm, cr_blocks_dpcm), n_rows, \
-           n_cols, down_sample_variant, down_sample_variant, block_size, quality_factor
+           n_cols, down_sample_variant, quality_factor
 
 
 def decoder(encoded_image_data):
@@ -133,9 +134,7 @@ def decoder(encoded_image_data):
     original_rows = encoded_image_data[2]
     original_cols = encoded_image_data[3]
     down_sampling_variant = encoded_image_data[4]
-    down_sampling_step = encoded_image_data[5]
-    block_size = encoded_image_data[6]
-    quality_factor = encoded_image_data[7]
+    quality_factor = encoded_image_data[5]
 
     y = encoded_image[0]
     cb = encoded_image[1]

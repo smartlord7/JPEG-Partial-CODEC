@@ -27,12 +27,6 @@ def main():
     if not down_sample_variant:
         down_sample_variant = "4:2:2"
 
-    block_size = input("Block size: ")
-    if not block_size:
-        block_size = 8
-    else:
-        block_size = eval(block_size)
-
     quality_factor = input("Quality factor: ")
     if not quality_factor:
         quality_factor = 50
@@ -50,15 +44,13 @@ def main():
 
     for image_name in original_images.keys():
         result = encoder((image_name, original_images[image_name]),
-                         down_sample_variant, block_size, quality_factor, show_plots=False)
-        encoded_images[image_name] = (result[0], result[1], result[2], result[3], result[4], result[5], result[6])
+                         down_sample_variant, IMAGE_SIZE_DIVISOR, quality_factor, show_plots=False)
+        encoded_images[image_name] = (result[0], result[1], result[2], result[3], result[4])
 
     for encoded_image_name in encoded_images.keys():
         data = encoded_images[encoded_image_name]
-        print("Decompressed image %s\nDistortion metrics" % encoded_image_name)
-        result = decoder((encoded_image_name, data[0], data[1], data[2], data[3], data[4], data[5], data[6]))
-        show_jpeg_metrics(original_images[encoded_image_name], result)
-        print("------------------------")
+        print("Decompressed image %s" % encoded_image_name)
+        result = decoder((encoded_image_name, data[0], data[1], data[2], data[3], data[4]))
 
 
 if __name__ == '__main__':
