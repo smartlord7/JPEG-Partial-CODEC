@@ -44,7 +44,7 @@ def main():
 
     for image_name in original_images.keys():
         result = encoder((image_name, original_images[image_name]),
-                         down_sample_variant, IMAGE_SIZE_DIVISOR, quality_factor, show_plots=False)
+                         down_sample_variant, IMAGE_SIZE_DIVISOR, quality_factor, show_plots=True)
         encoded_images[image_name] = (result[0], result[1], result[2], result[3], result[4], result[5])
 
     for encoded_image_name in encoded_images.keys():

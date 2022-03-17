@@ -34,7 +34,7 @@ def encoder(image_data, down_sample_variant, block_size, quality_factor, show_pl
         s_cols = s
         s_rows = s
 
-    padded_image = apply_padding(image_matrix, s_rows * block_size, s_cols * block_size)
+    padded_image = apply_padding(image_matrix, s_rows * block_size, s_cols * block_size, cv2.INTER_AREA)
     new_shape = padded_image.shape
     added_rows = str(new_shape[0] - n_rows)
     added_cols = str(new_shape[1] - n_cols)
@@ -155,7 +155,7 @@ def decoder(encoded_image_data):
     cb_up_sampled, cr_up_sampled = up_sample(cb_inverse_dct, cr_inverse_dct, down_sampling_variant, interpolation_type=cv2.INTER_AREA)
     joined_channels_img = join_channels(y_inverse_dct, cb_up_sampled, cr_up_sampled)
     rgb_image = y_cb_cr_to_rgb(joined_channels_img, Y_CB_CR_MATRIX_INVERSE)
-    unpadded_image = inverse_padding(rgb_image, original_rows, original_cols)
+    unpadded_image = inverse_padding(rgb_image, original_rows, original_cols, interpolation_type=cv2.INTER_CUBIC)
     show_images(unpadded_image, encoded_image_name + " - Decompressed", None, None)
 
     decoded_image = unpadded_image
