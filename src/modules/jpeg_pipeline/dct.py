@@ -24,7 +24,7 @@ def apply_dct_blocks_optimized(im, block_size):
     return dct_blocks
 
 
-def apply_inverse_dct_blocks_optimized(blocks,):
+def apply_inverse_dct_blocks_optimized(blocks):
     """Applies inverse DCT in blocks (main function)"""
     idct_blocks = idct(idct(blocks, axis=2, norm="ortho"), axis=3, norm="ortho")
     image = join_matrix_blockwise(idct_blocks)

@@ -1,3 +1,5 @@
+import cv2
+
 from modules.util import *
 from modules.const import *
 from modules.image import *
@@ -56,7 +58,7 @@ def encoder(image_data, down_sample_variant, block_size, quality_factor, show_pl
         show_images(cb, image_name + " - Cb channel w/grey cmap", GREY_CMAP, None)
         show_images(cr, image_name+ " - Cr channel w/grey cmap", GREY_CMAP, None)
 
-    cb, cr = down_sample(cb, cr, down_sample_variant)
+    cb, cr = down_sample(cb, cr, down_sample_variant, interpolation_type=cv2.INTER_CUBIC)
 
     y_dct_total = apply_dct(y)
     cb_dct_total = apply_dct(cb)
@@ -150,7 +152,7 @@ def decoder(encoded_image_data):
     cb_inverse_dct = apply_inverse_dct_blocks_optimized(cb_dequantized)
     cr_inverse_dct = apply_inverse_dct_blocks_optimized(cr_dequantized)
     y_copy = y_inverse_dct
-    cb_up_sampled, cr_up_sampled = up_sample(cb_inverse_dct, cr_inverse_dct, down_sampling_variant)
+    cb_up_sampled, cr_up_sampled = up_sample(cb_inverse_dct, cr_inverse_dct, down_sampling_variant, interpolation_type=cv2.INTER_AREA)
     joined_channels_img = join_channels(y_inverse_dct, cb_up_sampled, cr_up_sampled)
     rgb_image = y_cb_cr_to_rgb(joined_channels_img, Y_CB_CR_MATRIX_INVERSE)
     unpadded_image = inverse_padding(rgb_image, original_rows, original_cols)

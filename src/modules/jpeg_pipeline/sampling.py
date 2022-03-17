@@ -1,4 +1,5 @@
 import numpy as np
+import cv2
 
 
 def parse_down_sample_variant(variant):
@@ -11,7 +12,7 @@ def parse_down_sample_variant(variant):
     return cb_fac, cr_fac, f
 
 
-def down_sample(cb, cr, variant):
+def down_sample(cb, cr, variant, interpolation_type=None):
     """
                                     Function to down sample.
                                     :param cb: CB channel.
@@ -22,23 +23,34 @@ def down_sample(cb, cr, variant):
     """
 
     cb_fac, cr_fac, f = parse_down_sample_variant(variant)
+    n_rows = cb.shape[0]
+    n_cols = cb.shape[1]
 
     if f == 1:
         return cb, cr
 
     if cb_fac == cr_fac:
-        cb_down_sampled = cb[:, 0::f]
-        cr_down_sampled = cr[:, 0::f]
+        if interpolation_type is not None:
+            cb_down_sampled = cv2.resize(cb, (int(n_cols / f), n_rows), interpolation=interpolation_type)
+            cr_down_sampled = cv2.resize(cr, (int(n_cols / f), n_rows), interpolation=interpolation_type)
+        else:
+            cb_down_sampled = cb[:, 0::f]
+            cr_down_sampled = cr[:, 0::f]
+
     elif cr_fac == 0:
-        cb_down_sampled = cb[0::f, 0::f]
-        cr_down_sampled = cr[0::f, 0::f]
+        if interpolation_type is not None:
+            cb_down_sampled = cv2.resize(cb, (int(n_cols / f), int(n_rows / f)), interpolation=interpolation_type)
+            cr_down_sampled = cv2.resize(cr, (int(n_cols / f), int(n_rows / f)), interpolation=interpolation_type)
+        else:
+            cb_down_sampled = cb[0::f, 0::f]
+            cr_down_sampled = cr[0::f, 0::f]
     else:
         return cb, cr
 
     return cb_down_sampled, cr_down_sampled
 
 
-def up_sample(cb, cr, variant):
+def up_sample(cb, cr, variant, interpolation_type=None):
     """
                                        Function to up sample.
                                        :param cb: CB channel.
@@ -52,19 +64,30 @@ def up_sample(cb, cr, variant):
     y_fac = int(variant[0])
     cb_fac = int(variant[1])
     cr_fac = int(variant[2])
-    f = y_fac / cb_fac
+    f = int(y_fac / cb_fac)
 
     if f == 1:
         return cb, cr
 
+    n_rows = cb.shape[0]
+    n_cols = cb.shape[1]
+
     if cb_fac == cr_fac:
-        cb_up_sampled = np.repeat(cb, f, axis=1)
-        cr_up_sampled = np.repeat(cr, f, axis=1)
+        if interpolation_type is not None:
+            cb_up_sampled = cv2.resize(cb, (n_cols * f, n_rows), interpolation=interpolation_type)
+            cr_up_sampled = cv2.resize(cr, (n_cols * f, n_rows), interpolation=interpolation_type)
+        else:
+            cb_up_sampled = np.repeat(cb, f, axis=1)
+            cr_up_sampled = np.repeat(cr, f, axis=1)
     elif cr_fac == 0:
-        cb_up_sampled = np.repeat(cb, f, axis=1)
-        cr_up_sampled = np.repeat(cr, f, axis=1)
-        cb_up_sampled = np.repeat(cb_up_sampled, f, axis=0)
-        cr_up_sampled = np.repeat(cr_up_sampled, f, axis=0)
+        if interpolation_type is not None:
+            cb_up_sampled = np.repeat(cb, f, axis=1)
+            cr_up_sampled = np.repeat(cr, f, axis=1)
+        else:
+            cb_up_sampled = np.repeat(cb, f, axis=1)
+            cr_up_sampled = np.repeat(cr, f, axis=1)
+            cb_up_sampled = np.repeat(cb_up_sampled, f, axis=0)
+            cr_up_sampled = np.repeat(cr_up_sampled, f, axis=0)
     else:
         return cb, cr
 
