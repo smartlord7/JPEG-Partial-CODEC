@@ -9,7 +9,7 @@ from modules.jpeg_pipeline.sampling import *
 from modules.jpeg_pipeline.quantization import *
 
 
-def encoder(image_data, down_sampling_variant, down_sampling_step, block_size, quality_factor, show_plots=False):
+def encoder(image_data, down_sample_variant, block_size, quality_factor, show_plots=False):
     """
                                        Enconder function.
                                        :param image_data: the image to encode.
@@ -21,7 +21,18 @@ def encoder(image_data, down_sampling_variant, down_sampling_step, block_size, q
     n_rows = image_matrix.shape[0]
     n_cols = image_matrix.shape[1]
 
-    padded_image = apply_padding(image_matrix, down_sampling_step * block_size, down_sampling_step * block_size)
+    cb_fac, cr_fac, s = parse_down_sample_variant(down_sample_variant)
+    s_cols = int()
+    s_rows = int()
+
+    if cb_fac == cr_fac:
+        s_cols = s
+        s_rows = 1
+    elif cr_fac == 0:
+        s_cols = s
+        s_rows = s
+
+    padded_image = apply_padding(image_matrix, s_rows * block_size, s_cols * block_size)
     new_shape = padded_image.shape
     added_rows = str(new_shape[0] - n_rows)
     added_cols = str(new_shape[1] - n_cols)
@@ -44,7 +55,7 @@ def encoder(image_data, down_sampling_variant, down_sampling_step, block_size, q
         show_images(cb, image_name + " - Cb channel w/grey cmap", GREY_CMAP, None)
         show_images(cr, image_name+ " - Cr channel w/grey cmap", GREY_CMAP, None)
 
-    cb, cr = down_sample(cb, cr, down_sampling_variant, down_sampling_step)
+    cb, cr = down_sample(cb, cr, down_sample_variant)
 
     y_dct_total = apply_dct(y)
     cb_dct_total = apply_dct(cb)
@@ -108,7 +119,7 @@ def encoder(image_data, down_sampling_variant, down_sampling_step, block_size, q
     cr_blocks_dpcm = apply_dpcm_encoding(cr_blocks_quantized)
 
     return (y_blocks_dpcm, cb_blocks_dpcm, cr_blocks_dpcm), n_rows, \
-           n_cols, down_sampling_variant, down_sampling_step, block_size, quality_factor
+           n_cols, down_sample_variant, down_sample_variant, block_size, quality_factor
 
 
 def decoder(encoded_image_data):
@@ -139,10 +150,10 @@ def decoder(encoded_image_data):
     y_inverse_dct = apply_inverse_dct_blocks_optimized(y_dequantized)
     cb_inverse_dct = apply_inverse_dct_blocks_optimized(cb_dequantized)
     cr_inverse_dct = apply_inverse_dct_blocks_optimized(cr_dequantized)
-    cb_up_sampled, cr_up_sampled = up_sample(cb_inverse_dct, cr_inverse_dct, down_sampling_variant, down_sampling_step)
+    cb_up_sampled, cr_up_sampled = up_sample(cb_inverse_dct, cr_inverse_dct, down_sampling_variant)
     joined_channels_img = join_channels(y_inverse_dct, cb_up_sampled, cr_up_sampled)
     rgb_image = y_cb_cr_to_rgb(joined_channels_img, Y_CB_CR_MATRIX_INVERSE)
-    unpadded_image = reverse_padding(rgb_image, original_rows, original_cols)
+    unpadded_image = inverse_padding(rgb_image, original_rows, original_cols)
     show_images(unpadded_image, encoded_image_name + " - Decompressed", None, None)
 
     decoded_image = unpadded_image

@@ -12,25 +12,27 @@ def apply_padding(image, wanted_rows, wanted_cols):
     n_rows = image.shape[0]
     n_cols = image.shape[1]
 
-    remaining = n_rows % wanted_rows
+    if wanted_rows != 0:
+        remaining = n_rows % wanted_rows
 
-    if remaining != 0:
-        remaining = wanted_rows - remaining
-        last_row = image[n_rows - 1]
-        rows_to_add = np.repeat([last_row], remaining, axis=0)
-        image = np.vstack((image, rows_to_add))
+        if remaining != 0:
+            remaining = wanted_rows - remaining
+            last_row = image[n_rows - 1]
+            rows_to_add = np.repeat([last_row], remaining, axis=0)
+            image = np.vstack((image, rows_to_add))
 
-    remaining = n_cols % wanted_cols
+    if wanted_cols != 0:
+        remaining = n_cols % wanted_cols
 
-    if remaining != 0:
-        remaining = wanted_cols - remaining
-        last_col = image[:, [-1]]
-        image = np.hstack((image, np.tile(last_col, (remaining, 1))))
+        if remaining != 0:
+            remaining = wanted_cols - remaining
+            last_col = image[:, [-1]]
+            image = np.hstack((image, np.tile(last_col, (remaining, 1))))
 
     return image
 
 
-def reverse_padding(padded_image, original_rows, original_cols):
+def inverse_padding(padded_image, original_rows, original_cols):
     """
                                 Reverses the padding.
                                 :param padded_image: the padded image to unpad.
