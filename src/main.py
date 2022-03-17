@@ -57,7 +57,7 @@ def main():
 
     for image_name in original_images.keys():
         result = encoder((image_name, original_images[image_name]),
-                         down_sampling_variant, down_sampling_step, block_size, quality_factor, show_plots=False)
+                         down_sampling_variant, down_sampling_step, block_size, quality_factor, show_plots=True)
         encoded_images[image_name] = (result[0], result[1], result[2], result[3], result[4], result[5], result[6])
 
     decoded_images = dict()
@@ -65,11 +65,6 @@ def main():
         data = encoded_images[encoded_image_name]
         result = decoder((encoded_image_name, data[0], data[1], data[2], data[3], data[4], data[5], data[6]))
         decoded_images[encoded_image_name] = result
-
-        if image_equals(original_images[encoded_image_name], result):
-            print("No diff")
-        else:
-            print("Diff")
 
 
 if __name__ == '__main__':

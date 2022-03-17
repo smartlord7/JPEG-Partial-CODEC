@@ -64,25 +64,39 @@ def encoder(image_data, down_sampling_variant, down_sampling_step, block_size, q
         show_images(cb_idct_total, image_name + " - Total Inverse DCT - Cb", GREY_CMAP, None)
         show_images(cr_idct_total, image_name + " - Total Inverse DCT - Cr", GREY_CMAP, None)
 
-    y_dct_blocks = apply_dct_blocks_optimized(y, block_size)
-    cb_dct_blocks = apply_dct_blocks_optimized(cb, block_size)
-    cr_dct_blocks = apply_dct_blocks_optimized(cr, block_size)
+    y_dct_blocks_8 = apply_dct_blocks_optimized(y, 8)
+    cb_dct_blocks_8 = apply_dct_blocks_optimized(cb, 8)
+    cr_dct_blocks_8 = apply_dct_blocks_optimized(cr, 8)
 
-    joined_y_dct_blocks = join_matrix_blockwise(y_dct_blocks)
-    joined_cb_dct_blocks = join_matrix_blockwise(cb_dct_blocks)
-    joined_cr_dct_blocks = join_matrix_blockwise(cr_dct_blocks)
+    joined_y_dct_blocks_8 = join_matrix_blockwise(y_dct_blocks_8)
+    joined_cb_dct_blocks_8 = join_matrix_blockwise(cb_dct_blocks_8)
+    joined_cr_dct_blocks_8 = join_matrix_blockwise(cr_dct_blocks_8)
 
-    title_blocks_dct = image_name + " - DCT by blocks " + str(block_size) + "x" + str(block_size)
+    title_blocks_dct = image_name + " - DCT by blocks 8x8"
     if show_plots:
-        show_images(joined_y_dct_blocks, title_blocks_dct + " - Y", GREY_CMAP, plot_f)
-        show_images(joined_cb_dct_blocks, title_blocks_dct + " - Cb", GREY_CMAP, plot_f)
-        show_images(joined_cr_dct_blocks, title_blocks_dct + " - Cr", GREY_CMAP, plot_f)
+        show_images(joined_y_dct_blocks_8, title_blocks_dct + " - Y", GREY_CMAP, plot_f)
+        show_images(joined_cb_dct_blocks_8, title_blocks_dct + " - Cb", GREY_CMAP, plot_f)
+        show_images(joined_cr_dct_blocks_8, title_blocks_dct + " - Cr", GREY_CMAP, plot_f)
 
-    y_blocks_quantized = apply_quantization(y_dct_blocks, quality_factor, JPEG_QUANTIZATION_Y)
-    cb_blocks_quantized = apply_quantization(cb_dct_blocks, quality_factor, JPEG_QUANTIZATION_CB_CR)
-    cr_blocks_quantized = apply_quantization(cr_dct_blocks, quality_factor, JPEG_QUANTIZATION_CB_CR)
+    #y_dct_blocks_64 = apply_dct_blocks_optimized(y, 64)
+    #cb_dct_blocks_64 = apply_dct_blocks_optimized(cb, 64)
+    #cr_dct_blocks_64 = apply_dct_blocks_optimized(cr, 64)
 
-    title_blocks_quantized = image_name + " - DCT by blocks " + str(block_size) + "x" + str(block_size) + \
+    #joined_y_dct_blocks_64 = join_matrix_blockwise(y_dct_blocks_64)
+    #joined_cb_dct_blocks_64 = join_matrix_blockwise(cb_dct_blocks_64)
+    #joined_cr_dct_blocks_64 = join_matrix_blockwise(cr_dct_blocks_64)
+
+    #title_blocks_dct = image_name + " - DCT by blocks 64x64"
+    #if show_plots:
+        #show_images(joined_y_dct_blocks_64, title_blocks_dct + " - Y", GREY_CMAP, plot_f)
+        #show_images(joined_cb_dct_blocks_64, title_blocks_dct + " - Cb", GREY_CMAP, plot_f)
+        #show_images(joined_cr_dct_blocks_64, title_blocks_dct + " - Cr", GREY_CMAP, plot_f)
+
+    y_blocks_quantized = apply_quantization(y_dct_blocks_8, quality_factor, JPEG_QUANTIZATION_Y)
+    cb_blocks_quantized = apply_quantization(cb_dct_blocks_8, quality_factor, JPEG_QUANTIZATION_CB_CR)
+    cr_blocks_quantized = apply_quantization(cr_dct_blocks_8, quality_factor, JPEG_QUANTIZATION_CB_CR)
+
+    title_blocks_quantized = image_name + " - DCT by blocks 8x8 " +\
                              " w/quantization qual. " + str(quality_factor)
     if show_plots:
         show_images(join_matrix_blockwise(y_blocks_quantized), title_blocks_quantized + " - Y", GREY_CMAP, plot_f)
