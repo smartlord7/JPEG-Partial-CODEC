@@ -45,12 +45,17 @@ def main():
     for image_name in original_images.keys():
         result = encoder((image_name, original_images[image_name]),
                          down_sample_variant, IMAGE_SIZE_DIVISOR, quality_factor, show_plots=False)
-        encoded_images[image_name] = (result[0], result[1], result[2], result[3], result[4])
+        encoded_images[image_name] = (result[0], result[1], result[2], result[3], result[4], result[5])
 
     for encoded_image_name in encoded_images.keys():
         data = encoded_images[encoded_image_name]
         print("Decompressed image %s" % encoded_image_name)
-        result = decoder((encoded_image_name, data[0], data[1], data[2], data[3], data[4]))
+        result, y_new = decoder((encoded_image_name, data[0], data[1], data[2], data[3], data[4]))
+        y_old = encoded_images[encoded_image_name][5]
+        print("Distortion metrics - Y channel")
+        show_images(calc_error_image(y_old, y_new), encoded_image_name + " - Error - Y channel", GREY_CMAP, None)
+        show_jpeg_metrics(y_old, y_new)
+        print("--------------------")
 
 
 if __name__ == '__main__':

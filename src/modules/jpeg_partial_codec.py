@@ -1,4 +1,3 @@
-from modules.metrics import show_jpeg_metrics
 from modules.util import *
 from modules.const import *
 from modules.image import *
@@ -50,6 +49,7 @@ def encoder(image_data, down_sample_variant, block_size, quality_factor, show_pl
     y_cb_cr_image = rgb_to_y_cb_cr(padded_image, Y_CB_CR_MATRIX)
 
     y, cb, cr = separate_channels(y_cb_cr_image)
+    y_copy = y
 
     if show_plots:
         show_images(y, image_name + " - Y channel w/grey cmap", GREY_CMAP, None)
@@ -120,7 +120,7 @@ def encoder(image_data, down_sample_variant, block_size, quality_factor, show_pl
     cr_blocks_dpcm = apply_dpcm_encoding(cr_blocks_quantized)
 
     return (y_blocks_dpcm, cb_blocks_dpcm, cr_blocks_dpcm), n_rows, \
-           n_cols, down_sample_variant, quality_factor
+           n_cols, down_sample_variant, quality_factor, y_copy
 
 
 def decoder(encoded_image_data):
@@ -149,6 +149,7 @@ def decoder(encoded_image_data):
     y_inverse_dct = apply_inverse_dct_blocks_optimized(y_dequantized)
     cb_inverse_dct = apply_inverse_dct_blocks_optimized(cb_dequantized)
     cr_inverse_dct = apply_inverse_dct_blocks_optimized(cr_dequantized)
+    y_copy = y_inverse_dct
     cb_up_sampled, cr_up_sampled = up_sample(cb_inverse_dct, cr_inverse_dct, down_sampling_variant)
     joined_channels_img = join_channels(y_inverse_dct, cb_up_sampled, cr_up_sampled)
     rgb_image = y_cb_cr_to_rgb(joined_channels_img, Y_CB_CR_MATRIX_INVERSE)
@@ -157,4 +158,4 @@ def decoder(encoded_image_data):
 
     decoded_image = unpadded_image
 
-    return decoded_image
+    return decoded_image, y_copy
