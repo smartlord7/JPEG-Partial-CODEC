@@ -11,6 +11,7 @@ Tiago Filipe Santa Ventura, 2019243695, uc2019243695@student.uc.pt
 ---------------------------------------------------------------------------"""
 
 from modules.jpeg import *
+from modules.metrics import *
 from modules.jpeg_partial_codec import *
 
 
@@ -57,14 +58,15 @@ def main():
 
     for image_name in original_images.keys():
         result = encoder((image_name, original_images[image_name]),
-                         down_sampling_variant, down_sampling_step, block_size, quality_factor, show_plots=True)
+                         down_sampling_variant, down_sampling_step, block_size, quality_factor, show_plots=False)
         encoded_images[image_name] = (result[0], result[1], result[2], result[3], result[4], result[5], result[6])
 
-    decoded_images = dict()
     for encoded_image_name in encoded_images.keys():
         data = encoded_images[encoded_image_name]
+        print("Decompressed image %s\nDistortion metrics" % (encoded_image_name))
         result = decoder((encoded_image_name, data[0], data[1], data[2], data[3], data[4], data[5], data[6]))
-        decoded_images[encoded_image_name] = result
+        show_jpeg_metrics(original_images[encoded_image_name], result)
+        print("------------------------")
 
 
 if __name__ == '__main__':
