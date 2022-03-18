@@ -32,12 +32,24 @@ def get_scaled_quantization_matrix(quality_factor, quantization_matrix):
 
 
 def apply_quantization(matrix, quality_factor, quantization_matrix):
-    """ Function to apply quantization """
+    """
+    Function to apply quantization
+    :param matrix: matrix to apply quantization
+    :param quality_factor: the quality factor to be applied
+    :param quantization_matrix: the quantization matrix
+    :return: the quantizated original matrix.
+    """
     return np.round(matrix / get_scaled_quantization_matrix(quality_factor, quantization_matrix))
 
 
 def apply_inverse_quantization(matrix, quality_factor, quantization_matrix):
-    """ Function to apply inverse quantization """
+    """
+    Function to apply inverse quantization
+    :param matrix: matrix to apply quantization
+    :param quality_factor: the quality factor to be applied
+    :param quantization_matrix: the quantization matrix
+    :return: the original matrix.
+    """
     return matrix * get_scaled_quantization_matrix(quality_factor, quantization_matrix)
 
 

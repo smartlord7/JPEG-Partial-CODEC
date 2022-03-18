@@ -8,6 +8,7 @@ def apply_padding(image, wanted_rows, wanted_cols, interpolation_type=None):
                             :param image: the image to pad.
                             :param wanted_rows: number of rows to pad.
                             :param wanted_cols: number of columns to pad.
+                            :param interpolation_type: the chosen interpolation.
                             :return: the image with padding.
     """
     n_rows = image.shape[0]
@@ -50,6 +51,7 @@ def inverse_padding(padded_image, original_rows, original_cols, interpolation_ty
                                 :param padded_image: the padded image to unpad.
                                 :param original_rows: number of original rows.
                                 :param original_cols: number of original columns.
+                                :param interpolation_type: the chosen interpolation.
                                 :return: the original image.
     """
     n_rows = padded_image.shape[0]

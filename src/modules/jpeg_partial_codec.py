@@ -15,8 +15,11 @@ def encoder(image_data, down_sample_variant, block_size, quality_factor, show_pl
     """
                                        Enconder function.
                                        :param image_data: the image to encode.
+                                       :param down_sample_variant: The variant of the down sample
+                                       :param block_size: the size of the block
+                                       :param quality_factor: the quality factor to encode
                                        :param show_plots: flag that enables plotting.
-                                       :return: the encoded image.
+                                       :return: the encoded image and the y copy.
     """
     image_name = image_data[0]
     image_matrix = image_data[1]
@@ -129,7 +132,7 @@ def decoder(encoded_image_data):
     """
                                            Decode function.
                                            :param encoded_image_data: the image to decode.
-                                           :return: the decoded image.
+                                           :return: the decoded image and the y copy error.
     """
     encoded_image_name = encoded_image_data[0]
     encoded_image = encoded_image_data[1]

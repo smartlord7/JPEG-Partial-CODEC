@@ -4,12 +4,11 @@ from modules.image import read_images2
 
 def jpeg_compress_images(directory, ext, out_dir, quality_rates):
     """
-                        Compresses images.
-                        :param directory: images directory.
-                        :param ext: images extension.
-                        :param out_dir: output directory.
-                        :param quality_rates: the quality rates of the compression.
-                        :return:
+    Compresses images.
+    :param directory: images directory.
+    :param ext: images extension.
+    :param out_dir: output directory.
+    :param quality_rates: the quality rates of the compression.
     """
     images = read_images2(directory, ext)
     fig, axis = plt.subplots(len(images), len(quality_rates))

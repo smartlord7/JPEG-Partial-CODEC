@@ -11,6 +11,7 @@ def _show_image(image, name, cmap, func):
       :param image: the image to show.
       :param name: the name of the image to show.
       :param cmap: the color map to be applied.
+      :param func: the function of the image.
     """
     plt.figure()
     if name:
@@ -27,7 +28,8 @@ def show_images(images, name, cmap, func):
       Given one or more images,this function will show them in order
       :param images: the image(s) to show.
       :param name: the name of the image to show
-      :return:
+      :param cmap: the color map to be applied.
+      :param func: the function of the image.
     """
     t = type(images)
 
@@ -78,9 +80,9 @@ def read_images2(directory, ext):
 
 def generate_linear_colormap(color_list):
     """
-                            Generates the colormap.
-                           :param color_list: list of colors.
-                           :return: the colormap.
+    Generates the colormap.
+    :param color_list: list of colors.
+    :return: the colormap.
     """
     colormap = clr.LinearSegmentedColormap.from_list('cmap', color_list, N=256)
 
@@ -89,9 +91,9 @@ def generate_linear_colormap(color_list):
 
 def image_equals(original_image, decoded_image):
     """
-                                           Verifies if the images are equal.
-                                           :param original_image: original image.
-                                           :param decoded_image: decoded image.
-                                           :return: if the image is equal or no.
+    Verifies if the images are equal.
+    :param original_image: original image.
+    :param decoded_image: decoded image.
+    :return: if the image is equal or no.
     """
     return np.allclose(original_image, decoded_image)

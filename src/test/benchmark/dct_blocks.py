@@ -6,7 +6,15 @@ import matplotlib.pyplot as plt
 
 
 def run(trials, min_side, max_side, block_size, step):
-    """Function to run and calculate the time of the DCT"""
+    """
+    Function to run and calculate the time of the DCT
+    :param trials: Number of times to run the test
+    :param min_side: Minimum number in the random size
+    :param max_side: Maximum number in the random size
+    :param block_size: The block size
+    :param step: for range step
+    :return: the times of the trials.
+    """
     times = list()
     times.append(list())
     times.append(list())
