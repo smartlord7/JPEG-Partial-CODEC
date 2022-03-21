@@ -1,3 +1,5 @@
+import copy
+
 import cv2
 
 from modules.util import *
@@ -37,7 +39,7 @@ def encoder(image_data, down_sample_variant, block_size, quality_factor, show_pl
         s_cols = s
         s_rows = s
 
-    padded_image = apply_padding(image_matrix, s_rows * block_size, s_cols * block_size, cv2.INTER_AREA)
+    padded_image = apply_padding(image_matrix, s_rows * block_size, s_cols * block_size)
     new_shape = padded_image.shape
     added_rows = str(new_shape[0] - n_rows)
     added_cols = str(new_shape[1] - n_cols)
@@ -61,7 +63,7 @@ def encoder(image_data, down_sample_variant, block_size, quality_factor, show_pl
         show_images(cb, image_name + " - Cb channel w/grey cmap", GREY_CMAP, None)
         show_images(cr, image_name+ " - Cr channel w/grey cmap", GREY_CMAP, None)
 
-    cb, cr = down_sample(cb, cr, down_sample_variant, interpolation_type=cv2.INTER_CUBIC)
+    cb, cr = down_sample(cb, cr, down_sample_variant, interpolation_type=None)
 
     y_dct_total = apply_dct(y)
     cb_dct_total = apply_dct(cb)
@@ -105,15 +107,15 @@ def encoder(image_data, down_sample_variant, block_size, quality_factor, show_pl
 
     #title_blocks_dct = image_name + " - DCT by blocks 64x64"
     #if show_plots:
-        #show_images(joined_y_dct_blocks_64, title_blocks_dct + " - Y", GREY_CMAP, plot_f)
-        #show_images(joined_cb_dct_blocks_64, title_blocks_dct + " - Cb", GREY_CMAP, plot_f)
-        #show_images(joined_cr_dct_blocks_64, title_blocks_dct + " - Cr", GREY_CMAP, plot_f)
+    #show_images(joined_y_dct_blocks_64, title_blocks_dct + " - Y", GREY_CMAP, plot_f)
+    #show_images(joined_cb_dct_blocks_64, title_blocks_dct + " - Cb", GREY_CMAP, plot_f)
+    #show_images(joined_cr_dct_blocks_64, title_blocks_dct + " - Cr", GREY_CMAP, plot_f)
 
     y_blocks_quantized = apply_quantization(y_dct_blocks_8, quality_factor, JPEG_QUANTIZATION_Y)
     cb_blocks_quantized = apply_quantization(cb_dct_blocks_8, quality_factor, JPEG_QUANTIZATION_CB_CR)
     cr_blocks_quantized = apply_quantization(cr_dct_blocks_8, quality_factor, JPEG_QUANTIZATION_CB_CR)
 
-    title_blocks_quantized = image_name + " - DCT by blocks 8x8 " +\
+    title_blocks_quantized = image_name + " - DCT by blocks 8x8 " + \
                              " w/quantization qual. " + str(quality_factor)
     if show_plots:
         show_images(join_matrix_blockwise(y_blocks_quantized), title_blocks_quantized + " - Y", GREY_CMAP, plot_f)
@@ -158,7 +160,7 @@ def decoder(encoded_image_data):
     cb_up_sampled, cr_up_sampled = up_sample(cb_inverse_dct, cr_inverse_dct, down_sampling_variant, interpolation_type=cv2.INTER_AREA)
     joined_channels_img = join_channels(y_inverse_dct, cb_up_sampled, cr_up_sampled)
     rgb_image = y_cb_cr_to_rgb(joined_channels_img, Y_CB_CR_MATRIX_INVERSE)
-    unpadded_image = inverse_padding(rgb_image, original_rows, original_cols, interpolation_type=cv2.INTER_CUBIC)
+    unpadded_image = inverse_padding(rgb_image, original_rows, original_cols)
     show_images(unpadded_image, encoded_image_name + " - Decompressed", None, None)
 
     decoded_image = unpadded_image

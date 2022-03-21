@@ -18,8 +18,9 @@ def calc_mse(original_image, decompressed_image):
     :param decompressed_image: The decompressed image
     :return: the MSE of the image
     """
+    n = original_image.shape[0] * original_image.shape[1]
 
-    return np.mean(calc_error_image(original_image, decompressed_image) ** 2)
+    return np.sum((calc_error_image(original_image.astype(np.float), decompressed_image.astype(np.float)) ** 2)) / n
 
 
 def calc_rmse(original_image, decompressed_image):
@@ -39,7 +40,9 @@ def calc_snr(original_image, decompressed_image):
     :param decompressed_image: The decompressed image
     :return: the SNR of the image
     """
-    power = np.mean(original_image ** 2)
+
+    n = original_image.shape[0] * original_image.shape[1]
+    power = np.sum((original_image.astype(np.float) ** 2)) / n
 
     return 10 * np.log10(power / calc_mse(original_image, decompressed_image))
 
@@ -51,7 +54,7 @@ def calc_psnr(original_image, decompressed_image):
     :param decompressed_image: The decompressed image
     :return: the PSNR of the image
     """
-    max_val = np.max(original_image)
+    max_val = np.max(original_image.astype(np.float)) ** 2
 
     return 10 * np.log10(max_val / calc_mse(original_image, decompressed_image))
 

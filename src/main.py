@@ -29,7 +29,7 @@ def main():
 
     quality_factor = input("Quality factor: ")
     if not quality_factor:
-        quality_factor = 50
+        quality_factor = 75
     else:
         quality_factor = eval(quality_factor)
 
@@ -44,17 +44,17 @@ def main():
 
     for image_name in original_images.keys():
         result = encoder((image_name, original_images[image_name]),
-                         down_sample_variant, IMAGE_SIZE_DIVISOR, quality_factor, show_plots=True)
+                         down_sample_variant, IMAGE_SIZE_DIVISOR, quality_factor, show_plots=show_plots)
         encoded_images[image_name] = (result[0], result[1], result[2], result[3], result[4], result[5])
 
     for encoded_image_name in encoded_images.keys():
         data = encoded_images[encoded_image_name]
         print("Decompressed image %s" % encoded_image_name)
-        result, y_new = decoder((encoded_image_name, data[0], data[1], data[2], data[3], data[4]))
-        y_old = encoded_images[encoded_image_name][5]
-        print("Distortion metrics - Y channel")
-        show_images(calc_error_image(y_old, y_new), encoded_image_name + " - Error - Y channel", GREY_CMAP, None)
-        show_jpeg_metrics(y_old, y_new)
+        result, y_new = decoder((encoded_image_name, data[0], data[1], data[2], data[3], data[4], data[5]))
+        image_old = original_images[encoded_image_name]
+        print("Distortion metrics")
+        show_images((calc_error_image(data[5], y_new)), encoded_image_name + " - Error - Y channel", GREY_CMAP, None)
+        show_jpeg_metrics(image_old, result)
         print("--------------------")
 
 

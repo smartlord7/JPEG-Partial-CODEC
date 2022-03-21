@@ -86,8 +86,8 @@ def up_sample(cb, cr, variant, interpolation_type=None):
             cr_up_sampled = np.repeat(cr, f, axis=1)
     elif cr_fac == 0:
         if interpolation_type is not None:
-            cb_up_sampled = np.repeat(cb, f, axis=1)
-            cr_up_sampled = np.repeat(cr, f, axis=1)
+            cb_up_sampled = cv2.resize(cb, (n_cols * f, n_rows * f), interpolation=interpolation_type)
+            cr_up_sampled = cv2.resize(cr, (n_cols * f, n_rows * f), interpolation=interpolation_type)
         else:
             cb_up_sampled = np.repeat(cb, f, axis=1)
             cr_up_sampled = np.repeat(cr, f, axis=1)
