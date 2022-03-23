@@ -1,5 +1,7 @@
 from time import perf_counter
 
+import cv2
+
 from modules.util import *
 from modules.const import *
 from modules.image import *
@@ -11,7 +13,7 @@ from modules.jpeg_pipeline.sampling import *
 from modules.jpeg_pipeline.quantization import *
 
 
-def encoder(image_data, down_sample_variant, block_size, quality_factor, show_plots=False, verbose=False):
+def encoder(image_data, down_sample_variant, block_size, quality_factor, interpolation_type=cv2.INTER_CUBIC, show_plots=False, verbose=False):
     """
                                        Enconder function.
                                        :param image_data: the image to encode.
@@ -28,7 +30,7 @@ def encoder(image_data, down_sample_variant, block_size, quality_factor, show_pl
     total_time = int()
 
     print("\n----------------------------------")
-    print("Compressing %s with quality factor of %.2f%% and %s down sampling..." % (image_name, quality_factor, down_sample_variant))
+    print("Compressing %s (shape: %s) with quality factor of %.2f%% and %s down sampling..." % (image_name, image_matrix.shape, quality_factor, down_sample_variant))
 
     cb_fac, cr_fac, s = parse_down_sample_variant(down_sample_variant)
     s_cols = int()
@@ -82,11 +84,11 @@ def encoder(image_data, down_sample_variant, block_size, quality_factor, show_pl
         show_images(cr, image_name+ " - Cr channel w/grey cmap", GREY_CMAP, None)
 
     time = perf_counter()
-    cb, cr = down_sample(cb, cr, down_sample_variant, interpolation_type=None)
+    cb, cr = down_sample(cb, cr, down_sample_variant, interpolation_type=interpolation_type)
     total_time += perf_counter() - time
 
     if verbose:
-        print("Downsampled Cb and Cr channels using %s" % down_sample_variant)
+        print("Downsampled Cb and Cr channels using %s - shape: %s" % (down_sample_variant, cb.shape))
 
     if show_plots:
         show_images(cb, image_name + " - Down sampled w/" + down_sample_variant, GREY_CMAP, plot_f)

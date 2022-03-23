@@ -23,17 +23,42 @@ def main():
     orig_img_dir = cwd + ORIGINAL_IMAGE_DIRECTORY
     comp_img_dir = cwd + COMPRESSED_IMAGE_DIRECTORY
 
-    down_sample_variant = input("Down sampling variant: ")
-    if not down_sample_variant:
-        down_sample_variant = "4:2:2"
-
     quality_factor = input("Quality factor: ")
     if not quality_factor:
         quality_factor = 75
     else:
         quality_factor = eval(quality_factor)
+    print(quality_factor)
 
-    show_plots = False
+    down_sample_variant = input("Down sampling variant: ")
+    if not down_sample_variant:
+        down_sample_variant = "4:2:2"
+    print(down_sample_variant)
+
+    interpolation_type = input("Downsampling interpolation type: ")
+    if "LINEAR".lower() in interpolation_type.lower():
+        interpolation_type = cv2.INTER_LINEAR
+    elif "CUBIC".lower() in interpolation_type.lower():
+        interpolation_type = cv2.INTER_CUBIC
+    elif "AREA".lower() in interpolation_type.lower():
+        interpolation_type = cv2.INTER_AREA
+    else:
+        interpolation_type = None
+    print(interpolation_type)
+
+    show_plots = input("Show plots?")
+    if not show_plots:
+        show_plots = False
+    else:
+        show_plots = True
+    print(show_plots)
+
+    verbose = input("Verbose?")
+    if not verbose:
+        verbose = False
+    else:
+        verbose = True
+    print(verbose)
 
     original_images = read_images(orig_img_dir, ORIGINAL_IMAGE_EXTENSION)
     if show_plots:
@@ -44,7 +69,7 @@ def main():
 
     for image_name in original_images.keys():
         result = encoder((image_name, original_images[image_name]),
-                         down_sample_variant, IMAGE_SIZE_DIVISOR, quality_factor, show_plots=show_plots, verbose=True)
+                         down_sample_variant, IMAGE_SIZE_DIVISOR, quality_factor, interpolation_type, show_plots=show_plots, verbose=verbose)
         encoded_images[image_name] = (result[0], result[1], result[2], result[3], result[4], result[5])
 
     for encoded_image_name in encoded_images.keys():
