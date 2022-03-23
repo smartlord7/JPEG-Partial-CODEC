@@ -49,4 +49,3 @@ RED_CMAP = generate_linear_colormap(RED_CMAP_LIST)
 GREEN_CMAP = generate_linear_colormap(GREEN_CMAP_LIST)
 BLUE_CMAP = generate_linear_colormap(BLUE_CMAP_LIST)
 
-IMAGE_SIZE_DIVISOR = 16

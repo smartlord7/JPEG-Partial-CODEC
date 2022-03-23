@@ -28,6 +28,11 @@ def read_config():
             quality_factor = eval(quality_factor)
     print(quality_factor)
 
+    block_size = input("Block size: ")
+    if not block_size:
+        block_size = 8
+    print(block_size)
+
     down_sample_variant = input("Down sampling variant: ")
     if not down_sample_variant:
         down_sample_variant = "4:2:2"
@@ -59,6 +64,7 @@ def read_config():
     print(verbose)
 
     config["quality_factor"] = quality_factor
+    config["block_size"] = block_size
     config["down_sample_variant"] = down_sample_variant
     config["interpolation_type"] = interpolation_type
     config["show_plots"] = show_plots
@@ -72,7 +78,7 @@ def codec_run(original_images, config, output_file):
 
     for image_name in original_images.keys():
         result = encoder(output_file, (image_name, original_images[image_name]),
-                         config["down_sample_variant"], IMAGE_SIZE_DIVISOR, config["quality_factor"], config["interpolation_type"],
+                         config["down_sample_variant"], config["block_size"], config["quality_factor"], config["interpolation_type"],
                          show_plots=config["show_plots"], verbose=config["verbose"])
         encoded_images[image_name] = (result[0], result[1], result[2], result[3], result[4], result[5])
 

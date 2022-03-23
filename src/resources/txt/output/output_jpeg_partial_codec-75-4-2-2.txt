@@ -1,15 +1,15 @@
 
 ----------------------------------
 Compressing barn_mountains.bmp (shape: (297, 400, 3)) with quality factor of 75.00% and 4:2:2 down sampling...
-Applied padding of 7 rows and 16 columns
+Applied padding of 7 rows and 0 columns
 Converted RGB to YCbCr
 Separated Y, Cb and Cr channels
-Down sampled Cb and Cr channels using 4:2:2 - shape: (304, 208) - compression rate: 46.77%
+Down sampled Cb and Cr channels using 4:2:2 - shape: (304, 200) - compression rate: 48.82%
 Applied DCT in blocks of 8
 Applied quantization using quality factor 75.00%
 Applied DPCM
 
-Elapsed compression time: 0.038ms
+Elapsed compression time: 0.028ms
 ----------------------------------
 
 
@@ -23,7 +23,7 @@ Applied DCT in blocks of 8
 Applied quantization using quality factor 75.00%
 Applied DPCM
 
-Elapsed compression time: 0.029ms
+Elapsed compression time: 0.025ms
 ----------------------------------
 
 
@@ -37,6 +37,6 @@ Applied DCT in blocks of 8
 Applied quantization using quality factor 75.00%
 Applied DPCM
 
-Elapsed compression time: 0.046ms
+Elapsed compression time: 0.051ms
 ----------------------------------
 

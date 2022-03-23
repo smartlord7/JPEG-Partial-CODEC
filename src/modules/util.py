@@ -57,3 +57,4 @@ def float_to_uint8(matrix):
 def out(output_file, string):
     print(string)
     output_file.write(string + "\n")
+

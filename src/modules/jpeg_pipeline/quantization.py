@@ -9,7 +9,7 @@ Sancho Amaral Simões, 2019217590, uc2019217590@student.uc.pt
 Tiago Filipe Santa Ventura, 2019243695, uc2019243695@student.uc.pt
 Coimbra, 23rd March 2022
 ---------------------------------------------------------------------------"""
-
+import cv2
 import numpy as np
 
 
@@ -51,7 +51,12 @@ def apply_quantization(matrix, quality_factor, quantization_matrix):
     :param quantization_matrix: the quantization matrix
     :return: the quantizated original matrix.
     """
-    return np.round(matrix / get_scaled_quantization_matrix(quality_factor, quantization_matrix))
+
+    resized_q = cv2.resize(get_scaled_quantization_matrix(quality_factor, quantization_matrix),
+                           (matrix.shape[2], matrix.shape[3]),
+                           interpolation=cv2.INTER_CUBIC)
+
+    return np.round(matrix / resized_q)
 
 
 def apply_inverse_quantization(matrix, quality_factor, quantization_matrix):
@@ -62,5 +67,8 @@ def apply_inverse_quantization(matrix, quality_factor, quantization_matrix):
     :param quantization_matrix: the quantization matrix
     :return: the original matrix.
     """
-    return matrix * get_scaled_quantization_matrix(quality_factor, quantization_matrix)
+    resized_q = cv2.resize(get_scaled_quantization_matrix(quality_factor, quantization_matrix),
+                           (matrix.shape[2], matrix.shape[3]),
+                           interpolation=cv2.INTER_CUBIC)
 
+    return matrix * resized_q
