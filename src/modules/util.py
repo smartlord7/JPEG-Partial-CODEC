@@ -52,3 +52,8 @@ def float_to_uint8(matrix):
     matrix = matrix.astype(np.uint8)
 
     return matrix
+
+
+def out(output_file, string):
+    print(string)
+    output_file.write(string + "\n")

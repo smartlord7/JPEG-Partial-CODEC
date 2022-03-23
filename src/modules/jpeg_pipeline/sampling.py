@@ -18,7 +18,7 @@ def parse_down_sample_variant(variant):
     """
     Function that parses the down sample variant
     :param variant: the downsample variant
-    :return: the downsampled cb and cr factor
+    :return: the Down sampled cb and cr factor
     """
     variant = variant.split(":")
     y_fac = int(variant[0])
@@ -34,9 +34,9 @@ def down_sample(cb, cr, variant, interpolation_type=None):
     Function to down sample.
     :param cb: CB channel.
     :param cr: CR channel.
-    :param variant: downsampling variant.
+    :param variant: Down sampling variant.
     :param interpolation_type: the chosen interpolation.
-    :return: the downsampled channels.
+    :return: the Down sampled channels.
     """
 
     cb_fac, cr_fac, f = parse_down_sample_variant(variant)
@@ -72,7 +72,7 @@ def up_sample(cb, cr, variant, interpolation_type=None):
     Function to up sample.
     :param cb: CB channel.
     :param cr: CR channel.
-    :param variant: downsampling variant.
+    :param variant: Down sampling variant.
     :param interpolation_type: the chosen interpolation.
     :return: the upsampled channels.
     """

@@ -10,12 +10,13 @@ Tiago Filipe Santa Ventura, 2019243695, uc2019243695@student.uc.pt
 Coimbra, 23rd March 2022
 ---------------------------------------------------------------------------"""
 
-import numpy as np
-from modules.image import generate_linear_colormap
+from modules.image import *
 
-ORIGINAL_IMAGE_DIRECTORY = '\\resources\\img\\original_img\\'
+ORIGINAL_IMAGE_DIRECTORY = '\\resources\\img\\dataset\\'
 ORIGINAL_IMAGE_EXTENSION = '.bmp'
 COMPRESSED_IMAGE_DIRECTORY = '\\resources\\img\\jpeg_compressed_img'
+OUTPUT_TXT_PATH = '\\resources\\txt\\output\\output_jpeg_partial_codec'
+OUTPUT_IMG_PATH = '\\resources\\img\\plots'
 
 JPEG_QUALITY_RATES = [25, 50, 75]
 JPEG_QUANTIZATION_Y = np.array([[16, 11, 10, 16,  24,  40,  51,  61],

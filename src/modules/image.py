@@ -16,6 +16,8 @@ from PIL import Image
 import matplotlib.colors as clr
 from matplotlib import pyplot as plt
 
+OUTPUT_IMG_PATH = os.getcwd() + "\\resources\\img\\plots\\"
+
 
 def _show_image(image, name, cmap, func):
     """
@@ -32,6 +34,11 @@ def _show_image(image, name, cmap, func):
         plt.imshow(func(image), cmap)
     else:
         plt.imshow(image, cmap)
+
+    if name:
+        plt.savefig(OUTPUT_IMG_PATH + name.replace(".bmp", "").replace(":", "-").replace("|", "-").replace(" ", "").replace("/", "-") + ".png")
+    else:
+        plt.savefig(OUTPUT_IMG_PATH + "-.png")
     plt.show()
 
 

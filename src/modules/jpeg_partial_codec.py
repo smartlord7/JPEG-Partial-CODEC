@@ -22,9 +22,10 @@ from modules.jpeg_pipeline.sampling import *
 from modules.jpeg_pipeline.quantization import *
 
 
-def encoder(image_data, down_sample_variant, block_size, quality_factor, interpolation_type=cv2.INTER_CUBIC, show_plots=False, verbose=False):
+def encoder(output_file, image_data, down_sample_variant, block_size, quality_factor, interpolation_type=cv2.INTER_CUBIC, show_plots=False, verbose=False):
     """
                                        Enconder function.
+                                       :param output_file:
                                        :param image_data: the image to encode.
                                        :param down_sample_variant: The variant of the down sample
                                        :param block_size: the size of the block
@@ -36,10 +37,11 @@ def encoder(image_data, down_sample_variant, block_size, quality_factor, interpo
     image_matrix = image_data[1]
     n_rows = image_matrix.shape[0]
     n_cols = image_matrix.shape[1]
+    n = n_rows * n_cols
     total_time = int()
 
-    print("\n----------------------------------")
-    print("Compressing %s (shape: %s) with quality factor of %.2f%% and %s down sampling..." % (image_name, image_matrix.shape, quality_factor, down_sample_variant))
+    out(output_file, "\n----------------------------------")
+    out(output_file, "Compressing %s (shape: %s) with quality factor of %.2f%% and %s down sampling..." % (image_name, image_matrix.shape, quality_factor, down_sample_variant))
 
     cb_fac, cr_fac, s = parse_down_sample_variant(down_sample_variant)
     s_cols = int()
@@ -61,7 +63,7 @@ def encoder(image_data, down_sample_variant, block_size, quality_factor, interpo
     added_cols = str(new_shape[1] - n_cols)
 
     if verbose:
-        print("Applied padding of %s rows and %s columns" % (added_rows, added_cols))
+        out(output_file, "Applied padding of %s rows and %s columns" % (added_rows, added_cols))
 
     if show_plots:
         show_images(padded_image, image_name + " - Padded - +" + added_rows + "|+" + added_cols, None, None)
@@ -77,14 +79,15 @@ def encoder(image_data, down_sample_variant, block_size, quality_factor, interpo
     total_time += perf_counter() - time
 
     if verbose:
-        print("Converted RGB to YCbCr")
+        out(output_file, "Converted RGB to YCbCr")
 
     time = perf_counter()
     y, cb, cr = separate_channels(y_cb_cr_image)
     total_time += perf_counter() - time
 
     if verbose:
-        print("Separated Y, Cb and Cr channels")
+        out(output_file, "Separated Y, Cb and Cr channels")
+
     y_copy = y
 
     if show_plots:
@@ -96,8 +99,11 @@ def encoder(image_data, down_sample_variant, block_size, quality_factor, interpo
     cb, cr = down_sample(cb, cr, down_sample_variant, interpolation_type=interpolation_type)
     total_time += perf_counter() - time
 
+    n_new = cb.shape[0] * cb.shape[1]
+
     if verbose:
-        print("Downsampled Cb and Cr channels using %s - shape: %s" % (down_sample_variant, cb.shape))
+        out(output_file, "Down sampled Cb and Cr channels using %s - shape: %s - compression rate: %.2f%%" %
+            (down_sample_variant, cb.shape, ((n - n_new) / n * 100)))
 
     if show_plots:
         show_images(cb, image_name + " - Down sampled w/" + down_sample_variant, GREY_CMAP, plot_f)
@@ -128,7 +134,7 @@ def encoder(image_data, down_sample_variant, block_size, quality_factor, interpo
     total_time += perf_counter() - time
 
     if verbose:
-        print("Applied DCT in blocks of 8")
+        out(output_file, "Applied DCT in blocks of 8")
 
     joined_y_dct_blocks_8 = join_matrix_blockwise(y_dct_blocks_8)
     joined_cb_dct_blocks_8 = join_matrix_blockwise(cb_dct_blocks_8)
@@ -161,7 +167,7 @@ def encoder(image_data, down_sample_variant, block_size, quality_factor, interpo
     total_time += perf_counter() - time
 
     if verbose:
-        print("Applied quantization using quality factor %.2f%%" % quality_factor)
+        out(output_file, "Applied quantization using quality factor %.2f%%" % quality_factor)
 
     title_blocks_quantized = image_name + " - DCT by blocks 8x8 " + \
                              " w/quantization qual. " + str(quality_factor)
@@ -177,16 +183,17 @@ def encoder(image_data, down_sample_variant, block_size, quality_factor, interpo
     total_time += perf_counter() - time
 
     if verbose:
+        out(output_file, "Applied DPCM\n")
         print("Applied DPCM\n")
 
-    print("Elapsed compression time: %.3fms" % total_time)
-    print("----------------------------------\n")
+    out(output_file, "Elapsed compression time: %.3fms" % total_time)
+    out(output_file, "----------------------------------\n")
 
     return (y_blocks_dpcm, cb_blocks_dpcm, cr_blocks_dpcm), n_rows, \
            n_cols, down_sample_variant, quality_factor, y_copy
 
 
-def decoder(encoded_image_data, verbose=False):
+def decoder(encoded_image_data, verbose=False, show_plots=False):
     """
                                            Decode function.
                                            :param encoded_image_data: the image to decode.
@@ -267,7 +274,8 @@ def decoder(encoded_image_data, verbose=False):
     print("Elapsed decompression time: %.3fms" % total_time)
     print("----------------------------------\n")
 
-    show_images(unpadded_image, encoded_image_name + " - Decompressed", None, None)
+    show_images(unpadded_image, encoded_image_name + "|" + str(quality_factor) + "%" + "|" +
+                down_sampling_variant + " - Decompressed", None, None)
     decoded_image = unpadded_image
 
     return decoded_image, y_copy
