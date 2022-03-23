@@ -1,13 +1,13 @@
-"""------------COMPRESSAO DE IMAGEM------------
-Universidade de Coimbra
-Licenciatura em Engenharia Informatica
+"""------------DESTRUCTIVE COMPRESSION OF IMAGE - PARTIAL JPEG CODEC------------
+University of Coimbra
+Degree in Computer Science and Engineering
 Multimedia
-Terceiro ano, segundo semestre
+3rd year, 2nd semester
 Authors:
-Rui Bernardo Lopes Rodrigues
+Rui Bernardo Lopes Rodrigues, 2019217573, uc2019217573@student.uc.pt
 Sancho Amaral Simões, 2019217590, uc2019217590@student.uc.pt
 Tiago Filipe Santa Ventura, 2019243695, uc2019243695@student.uc.pt
-19/12/2020
+Coimbra, 23rd March 2022
 ---------------------------------------------------------------------------"""
 
 from modules.jpeg import *

@@ -1,8 +1,18 @@
+"""------------DESTRUCTIVE COMPRESSION OF IMAGE - PARTIAL JPEG CODEC------------
+University of Coimbra
+Degree in Computer Science and Engineering
+Multimedia
+3rd year, 2nd semester
+Authors:
+Rui Bernardo Lopes Rodrigues, 2019217573, uc2019217573@student.uc.pt
+Sancho Amaral Simões, 2019217590, uc2019217590@student.uc.pt
+Tiago Filipe Santa Ventura, 2019243695, uc2019243695@student.uc.pt
+Coimbra, 23rd March 2022
+---------------------------------------------------------------------------"""
+
+import matplotlib.pyplot as plt
 from time import perf_counter
 from modules.jpeg_pipeline.dct import *
-
-import numpy as np
-import matplotlib.pyplot as plt
 
 
 def run(trials, min_side, max_side, block_size, step):
