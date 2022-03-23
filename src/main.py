@@ -80,12 +80,12 @@ def codec_run(original_images, config, output_file):
         result = encoder(output_file, (image_name, original_images[image_name]),
                          config["down_sample_variant"], config["block_size"], config["quality_factor"], config["interpolation_type"],
                          show_plots=config["show_plots"], verbose=config["verbose"])
-        encoded_images[image_name] = (result[0], result[1], result[2], result[3], result[4], result[5])
+        encoded_images[image_name] = result
 
     for encoded_image_name in encoded_images.keys():
         data = encoded_images[encoded_image_name]
         print("Decompressed image %s" % encoded_image_name)
-        result, y_new = decoder((encoded_image_name, data[0], data[1], data[2], data[3], data[4], data[5]))
+        result, y_new = decoder(encoded_image_name, data)
         image_old = original_images[encoded_image_name]
         print("Distortion metrics")
         if config["show_plots"]:

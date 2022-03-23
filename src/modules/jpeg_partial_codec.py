@@ -22,9 +22,12 @@ from modules.jpeg_pipeline.sampling import *
 from modules.jpeg_pipeline.quantization import *
 
 
-def encoder(output_file, image_data, down_sample_variant, block_size, quality_factor, interpolation_type=cv2.INTER_CUBIC, show_plots=False, verbose=False):
+def encoder(output_file, image_data, down_sample_variant, block_size, quality_factor,
+            interpolation_type=cv2.INTER_CUBIC, show_plots=False, verbose=False):
     """
                                        Enconder function.
+                                       :param verbose:
+                                       :param interpolation_type:
                                        :param output_file:
                                        :param image_data: the image to encode.
                                        :param down_sample_variant: The variant of the down sample
@@ -39,9 +42,12 @@ def encoder(output_file, image_data, down_sample_variant, block_size, quality_fa
     n_cols = image_matrix.shape[1]
     n = n_rows * n_cols
     total_time = int()
+    img_id = image_name + "-Q" + str(quality_factor) + "D" + down_sample_variant.replace(":", "") + "B" + str(
+        block_size) + "I" + str(interpolation_type)
 
     out(output_file, "\n----------------------------------")
-    out(output_file, "Compressing %s (shape: %s) with quality factor of %.2f%% and %s down sampling..." % (image_name, image_matrix.shape, quality_factor, down_sample_variant))
+    out(output_file, "Compressing %s (shape: %s) with quality factor of %.2f%% and %s down sampling..." % (
+        image_name, image_matrix.shape, quality_factor, down_sample_variant))
 
     cb_fac, cr_fac, s = parse_down_sample_variant(down_sample_variant)
     s_cols = int()
@@ -54,9 +60,9 @@ def encoder(output_file, image_data, down_sample_variant, block_size, quality_fa
         s_cols = s
         s_rows = s
 
-    time = perf_counter()
+    timer = perf_counter()
     padded_image = apply_padding(image_matrix, s_rows * block_size, s_cols * block_size)
-    total_time += perf_counter() - time
+    total_time += perf_counter() - timer
 
     new_shape = padded_image.shape
     added_rows = str(new_shape[0] - n_rows)
@@ -66,24 +72,24 @@ def encoder(output_file, image_data, down_sample_variant, block_size, quality_fa
         out(output_file, "Applied padding of %s rows and %s columns" % (added_rows, added_cols))
 
     if show_plots:
-        show_images(padded_image, image_name + " - Padded - +" + added_rows + "|+" + added_cols, None, None)
+        show_images(padded_image, img_id + "-Padded+" + added_rows + "+" + added_cols, None, None)
 
     r, g, b = separate_channels(padded_image)
     if show_plots:
-        show_images(r, image_name + " - Red channel w/red cmap", RED_CMAP, None)
-        show_images(g, image_name + " - Green channel w/green cmap", GREEN_CMAP, None)
-        show_images(b, image_name + " - Blue channel w/blue cmap", BLUE_CMAP, None)
+        show_images(r, img_id + "-RRed", RED_CMAP, None)
+        show_images(g, img_id + "-GGreen", GREEN_CMAP, None)
+        show_images(b, img_id + "-BBlue", BLUE_CMAP, None)
 
-    time = perf_counter()
+    timer = perf_counter()
     y_cb_cr_image = rgb_to_y_cb_cr(padded_image, Y_CB_CR_MATRIX)
-    total_time += perf_counter() - time
+    total_time += perf_counter() - timer
 
     if verbose:
         out(output_file, "Converted RGB to YCbCr")
 
-    time = perf_counter()
+    timer = perf_counter()
     y, cb, cr = separate_channels(y_cb_cr_image)
-    total_time += perf_counter() - time
+    total_time += perf_counter() - timer
 
     if verbose:
         out(output_file, "Separated Y, Cb and Cr channels")
@@ -91,13 +97,13 @@ def encoder(output_file, image_data, down_sample_variant, block_size, quality_fa
     y_copy = y
 
     if show_plots:
-        show_images(y, image_name + " - Y channel w/grey cmap", GREY_CMAP, None)
-        show_images(cb, image_name + " - Cb channel w/grey cmap", GREY_CMAP, None)
-        show_images(cr, image_name+ " - Cr channel w/grey cmap", GREY_CMAP, None)
+        show_images(y, img_id + "-YGrey", GREY_CMAP, None)
+        show_images(cb, img_id + "-CbGrey", GREY_CMAP, None)
+        show_images(cr, img_id + "-CrGrey", GREY_CMAP, None)
 
-    time = perf_counter()
+    timer = perf_counter()
     cb, cr = down_sample(cb, cr, down_sample_variant, interpolation_type=interpolation_type)
-    total_time += perf_counter() - time
+    total_time += perf_counter() - timer
 
     n_new = cb.shape[0] * cb.shape[1]
 
@@ -106,32 +112,32 @@ def encoder(output_file, image_data, down_sample_variant, block_size, quality_fa
             (down_sample_variant, cb.shape, ((n - n_new) / n * 100)))
 
     if show_plots:
-        show_images(cb, image_name + " - Down sampled w/" + down_sample_variant, GREY_CMAP, plot_f)
-        show_images(cr, image_name + " - Down sampled w/" + down_sample_variant, GREY_CMAP, plot_f)
+        show_images(cb, img_id + "-CbDownSampled", GREY_CMAP, plot_f)
+        show_images(cr, img_id + "-CrDownSampled", GREY_CMAP, plot_f)
 
     y_dct_total = apply_dct(y)
     cb_dct_total = apply_dct(cb)
     cr_dct_total = apply_dct(cr)
 
     if show_plots:
-        show_images(y_dct_total, image_name + " - Total DCT - Y", GREY_CMAP, plot_f)
-        show_images(cb_dct_total, image_name + " - Total DCT - Cb", GREY_CMAP, plot_f)
-        show_images(cr_dct_total, image_name + " - Total DCT - Cr", GREY_CMAP, plot_f)
+        show_images(y_dct_total, img_id + "-YTotalDCT", GREY_CMAP, plot_f)
+        show_images(cb_dct_total, img_id + "-CbTotalDCT", GREY_CMAP, plot_f)
+        show_images(cr_dct_total, img_id + "-CrTotalDCT", GREY_CMAP, plot_f)
 
     y_idct_total = apply_inverse_dct(y_dct_total)
     cb_idct_total = apply_inverse_dct(cb_dct_total)
     cr_idct_total = apply_inverse_dct(cr_dct_total)
 
     if show_plots:
-        show_images(y_idct_total, image_name + " - Total Inverse DCT - Y", GREY_CMAP, None)
-        show_images(cb_idct_total, image_name + " - Total Inverse DCT - Cb", GREY_CMAP, None)
-        show_images(cr_idct_total, image_name + " - Total Inverse DCT - Cr", GREY_CMAP, None)
+        show_images(y_idct_total, img_id + "-YTotalIDCT", GREY_CMAP, None)
+        show_images(cb_idct_total, img_id + "-CbTotalIDCT", GREY_CMAP, None)
+        show_images(cr_idct_total, img_id + "-CrTotalIDCT", GREY_CMAP, None)
 
-    time = perf_counter()
+    timer = perf_counter()
     y_dct_blocks = apply_dct_blocks_optimized(y, block_size)
     cb_dct_blocks = apply_dct_blocks_optimized(cb, block_size)
     cr_dct_blocks = apply_dct_blocks_optimized(cr, block_size)
-    total_time += perf_counter() - time
+    total_time += perf_counter() - timer
 
     if verbose:
         out(output_file, "Applied DCT in blocks of 8")
@@ -140,128 +146,135 @@ def encoder(output_file, image_data, down_sample_variant, block_size, quality_fa
     joined_cb_dct_blocks = join_matrix_blockwise(cb_dct_blocks)
     joined_cr_dct_blocks = join_matrix_blockwise(cr_dct_blocks)
 
-    title_blocks_dct = image_name + " - DCT by blocks 8x8"
     if show_plots:
-        show_images(joined_y_dct_blocks, title_blocks_dct + " - Y", GREY_CMAP, plot_f)
-        show_images(joined_cb_dct_blocks, title_blocks_dct + " - Cb", GREY_CMAP, plot_f)
-        show_images(joined_cr_dct_blocks, title_blocks_dct + " - Cr", GREY_CMAP, plot_f)
+        show_images(joined_y_dct_blocks, img_id + "-YDCT", GREY_CMAP, plot_f)
+        show_images(joined_cb_dct_blocks, img_id + "-CbDCT", GREY_CMAP, plot_f)
+        show_images(joined_cr_dct_blocks, img_id + "-CrDCT", GREY_CMAP, plot_f)
 
-    time = perf_counter()
+    timer = perf_counter()
     y_blocks_quantized = apply_quantization(y_dct_blocks, quality_factor, JPEG_QUANTIZATION_Y)
     cb_blocks_quantized = apply_quantization(cb_dct_blocks, quality_factor, JPEG_QUANTIZATION_CB_CR)
     cr_blocks_quantized = apply_quantization(cr_dct_blocks, quality_factor, JPEG_QUANTIZATION_CB_CR)
-    total_time += perf_counter() - time
+    total_time += perf_counter() - timer
 
     if verbose:
         out(output_file, "Applied quantization using quality factor %.2f%%" % quality_factor)
 
-    title_blocks_quantized = image_name + " - DCT by blocks 8x8 " + \
-                             " w/quantization qual. " + str(quality_factor)
     if show_plots:
-        show_images(join_matrix_blockwise(y_blocks_quantized), title_blocks_quantized + " - Y", GREY_CMAP, plot_f)
-        show_images(join_matrix_blockwise(cb_blocks_quantized), title_blocks_quantized + " - Cb", GREY_CMAP, plot_f)
-        show_images(join_matrix_blockwise(cr_blocks_quantized), title_blocks_quantized + " - Cr", GREY_CMAP, plot_f)
+        show_images(join_matrix_blockwise(y_blocks_quantized), img_id + "-YQuantized", GREY_CMAP, plot_f)
+        show_images(join_matrix_blockwise(cb_blocks_quantized), img_id + "-CbQuantized", GREY_CMAP, plot_f)
+        show_images(join_matrix_blockwise(cr_blocks_quantized), img_id + "-CrQuantized", GREY_CMAP, plot_f)
 
-    time = perf_counter()
+    timer = perf_counter()
     y_blocks_dpcm = apply_dpcm_encoding(y_blocks_quantized)
     cb_blocks_dpcm = apply_dpcm_encoding(cb_blocks_quantized)
     cr_blocks_dpcm = apply_dpcm_encoding(cr_blocks_quantized)
-    total_time += perf_counter() - time
+    total_time += perf_counter() - timer
 
     if verbose:
         out(output_file, "Applied DPCM\n")
         print("Applied DPCM\n")
 
-    out(output_file, "Elapsed compression time: %.3fms" % total_time)
+    out(output_file, "Elapsed compression timer: %.3fms" % total_time)
     out(output_file, "----------------------------------\n")
 
     return (y_blocks_dpcm, cb_blocks_dpcm, cr_blocks_dpcm), n_rows, \
-           n_cols, down_sample_variant, quality_factor, y_copy
+           n_cols, down_sample_variant, quality_factor, block_size, y_copy
 
 
-def decoder(encoded_image_data, verbose=False, show_plots=False):
+def decoder(encoded_image_name, encoded_image_data, verbose=False, show_plots=False):
     """
                                            Decode function.
+                                           :param verbose:
+                                           :param show_plots:
                                            :param encoded_image_data: the image to decode.
                                            :return: the decoded image and the y copy error.
     """
-    encoded_image_name = encoded_image_data[0]
-    encoded_image = encoded_image_data[1]
-    original_rows = encoded_image_data[2]
-    original_cols = encoded_image_data[3]
-    down_sampling_variant = encoded_image_data[4]
-    quality_factor = encoded_image_data[5]
+    encoded_image = encoded_image_data[0]
+    original_rows = encoded_image_data[1]
+    original_cols = encoded_image_data[2]
+    down_sample_variant = encoded_image_data[3]
+    quality_factor = encoded_image_data[4]
+    block_size = encoded_image_data[5]
     total_time = int()
+    img_id = encoded_image_name + "-Q" + str(quality_factor) + "D" + down_sample_variant.replace(":", "") + "B" + str(
+        block_size) + "I"
 
     print("\n----------------------------------")
-    print("Decompressing %s with quality factor of %.2f%% and %s down sampling..." % (encoded_image_name, quality_factor, down_sampling_variant))
+    print("Decompressing %s with quality factor of %.2f%% and %s down sampling..." % (
+        encoded_image_name, quality_factor, down_sample_variant))
 
     y = encoded_image[0]
     cb = encoded_image[1]
     cr = encoded_image[2]
 
-    time = perf_counter()
+    timer = perf_counter()
     y_idpcm = apply_dpcm_decoding(y)
     cb_idpcm = apply_dpcm_decoding(cb)
     cr_idpcm = apply_dpcm_decoding(cr)
-    total_time += perf_counter() - time
+    total_time += perf_counter() - timer
+    img_id = encoded_image_name + "-Q" + str(quality_factor) + "D" + down_sample_variant
 
     if verbose:
         print("Applied inverse DPCM encoding")
 
-    time = perf_counter()
+    timer = perf_counter()
     y_dequantized = apply_inverse_quantization(y_idpcm, quality_factor, JPEG_QUANTIZATION_Y)
     cb_dequantized = apply_inverse_quantization(cb_idpcm, quality_factor, JPEG_QUANTIZATION_CB_CR)
     cr_dequantized = apply_inverse_quantization(cr_idpcm, quality_factor, JPEG_QUANTIZATION_CB_CR)
-    total_time += perf_counter() - time
+    total_time += perf_counter() - timer
 
     if verbose:
         print("Applied dequantization")
 
-    time = perf_counter()
+    timer = perf_counter()
     y_inverse_dct = apply_inverse_dct_blocks_optimized(y_dequantized)
     cb_inverse_dct = apply_inverse_dct_blocks_optimized(cb_dequantized)
     cr_inverse_dct = apply_inverse_dct_blocks_optimized(cr_dequantized)
-    total_time += perf_counter() - time
+    total_time += perf_counter() - timer
 
     if verbose:
         print("Applied inverse DCT")
 
     y_copy = y_inverse_dct
 
-    time = perf_counter()
-    cb_up_sampled, cr_up_sampled = up_sample(cb_inverse_dct, cr_inverse_dct, down_sampling_variant, interpolation_type=cv2.INTER_AREA)
-    total_time += perf_counter() - time
+    timer = perf_counter()
+    cb_up_sampled, cr_up_sampled = up_sample(cb_inverse_dct, cr_inverse_dct, down_sample_variant,
+                                             interpolation_type=cv2.INTER_AREA)
+
+    if show_plots:
+        show_images()
+
+    total_time += perf_counter() - timer
 
     if verbose:
-        print("Applied up sampling using %s" % down_sampling_variant)
+        print("Applied up sampling using %s" % down_sample_variant)
 
-    time = perf_counter()
+    timer = perf_counter()
     joined_channels_img = join_channels(y_inverse_dct, cb_up_sampled, cr_up_sampled)
-    total_time += perf_counter() - time
+    total_time += perf_counter() - timer
 
     if verbose:
         print("Joined Y, Cb and Cr channels")
 
-    time = perf_counter()
+    timer = perf_counter()
     rgb_image = y_cb_cr_to_rgb(joined_channels_img, Y_CB_CR_MATRIX_INVERSE)
-    total_time += perf_counter() - time
+    total_time += perf_counter() - timer
 
     if verbose:
         print("Converted YCbCr to RGB")
 
-    time = perf_counter()
+    timer = perf_counter()
     unpadded_image = inverse_padding(rgb_image, original_rows, original_cols)
-    total_time += perf_counter() - time
+    total_time += perf_counter() - timer
 
     if verbose:
         print("Applied inverse padding")
 
-    print("Elapsed decompression time: %.3fms" % total_time)
+    print("Elapsed decompression timer: %.3fms" % total_time)
     print("----------------------------------\n")
 
-    show_images(unpadded_image, encoded_image_name + "|" + str(quality_factor) + "%" + "|" +
-                down_sampling_variant + " - Decompressed", None, None)
+    show_images(unpadded_image, img_id.replace(":", "-") + " - Decompressed", None, None)
     decoded_image = unpadded_image
 
     return decoded_image, y_copy

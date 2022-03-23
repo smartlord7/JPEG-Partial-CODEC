@@ -29,7 +29,7 @@ def join_channels(c1, c2, c3):
              :param c1: RGB Channel 1.
              :param c2: RGB Channel 2.
              :param c3: RGB Channel 3.
-             :return: image that results in the of the 3 channels.
+             :return: image that results in the junction of the 3 channels.
     """
     shape = (c1.shape[0], c2.shape[1], 3)
     image = np.zeros(shape)
@@ -57,4 +57,3 @@ def float_to_uint8(matrix):
 def out(output_file, string):
     print(string)
     output_file.write(string + "\n")
-

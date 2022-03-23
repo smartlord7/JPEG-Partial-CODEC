@@ -36,7 +36,7 @@ def _show_image(image, name, cmap, func):
         plt.imshow(image, cmap)
 
     if name:
-        plt.savefig(OUTPUT_IMG_PATH + name.replace(".bmp", "").replace(":", "-").replace("|", "-").replace(" ", "").replace("/", "-") + ".png")
+        plt.savefig(OUTPUT_IMG_PATH + name + ".png")
     else:
         plt.savefig(OUTPUT_IMG_PATH + "-.png")
     plt.show()

@@ -9,7 +9,7 @@ Applied DCT in blocks of 8
 Applied quantization using quality factor 75.00%
 Applied DPCM
 
-Elapsed compression time: 0.028ms
+Elapsed compression timer: 0.042ms
 ----------------------------------
 
 
@@ -23,7 +23,7 @@ Applied DCT in blocks of 8
 Applied quantization using quality factor 75.00%
 Applied DPCM
 
-Elapsed compression time: 0.025ms
+Elapsed compression timer: 0.044ms
 ----------------------------------
 
 
@@ -37,6 +37,6 @@ Applied DCT in blocks of 8
 Applied quantization using quality factor 75.00%
 Applied DPCM
 
-Elapsed compression time: 0.051ms
+Elapsed compression timer: 0.065ms
 ----------------------------------
 
