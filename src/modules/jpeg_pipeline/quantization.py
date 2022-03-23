@@ -52,4 +52,3 @@ def apply_inverse_quantization(matrix, quality_factor, quantization_matrix):
     """
     return matrix * get_scaled_quantization_matrix(quality_factor, quantization_matrix)
 
-
