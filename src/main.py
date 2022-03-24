@@ -12,7 +12,10 @@ Coimbra, 23rd March 2022
 
 from modules.jpeg_partial_codec import *
 
-
+"""
+    Function that reads user input config
+    :return: the applied config
+"""
 def read_config():
     config = dict()
 
@@ -70,7 +73,11 @@ def read_config():
 
     return config
 
-
+"""
+    Function that applies the input config and shows metrics/plots
+    :param original_images: images where the codec will be applied
+    :param config: the config that will be applied to the images
+"""
 def codec_run(original_images, config):
     encoded_images = dict()
 

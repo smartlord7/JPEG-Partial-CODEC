@@ -21,18 +21,20 @@ from modules.jpeg_pipeline.sampling import *
 from modules.jpeg_pipeline.quantization import *
 
 
+# region Public Functions
+
 def encoder(image_data, down_sample_variant, block_size, quality_factor,
             interpolation_type=cv2.INTER_CUBIC, show_plots=False, verbose=False):
     """
-                                       Enconder function.
-                                       :param verbose:
-                                       :param interpolation_type:
-                                       :param image_data: the image to encode.
-                                       :param down_sample_variant: The variant of the down sample
-                                       :param block_size: the size of the block
-                                       :param quality_factor: the quality factor to encode
-                                       :param show_plots: flag that enables plotting.
-                                       :return: the encoded image and the y copy.
+    Enconder function.
+    :param verbose:
+    :param interpolation_type:
+    :param image_data: the image to encode.
+    :param down_sample_variant: The variant of the down sample
+    :param block_size: the size of the block
+    :param quality_factor: the quality factor to encode
+    :param show_plots: flag that enables plotting.
+    :return: the encoded image and the y copy.
     """
     image_name = image_data[0]
     image_matrix = image_data[1]
@@ -218,12 +220,12 @@ def encoder(image_data, down_sample_variant, block_size, quality_factor,
 
 def decoder(encoded_image_name, encoded_image_data, verbose=False, show_plots=False):
     """
-                                           Decode function.
-                                           :param encoded_image_name:
-                                           :param verbose:
-                                           :param show_plots:
-                                           :param encoded_image_data: the image to decode.
-                                           :return: the decoded image and the y copy error.
+    Decode function.
+    :param encoded_image_name:
+    :param verbose:
+    :param show_plots:
+    :param encoded_image_data: the image to decode.
+    :return: the decoded image and the y copy error.
     """
     encoded_image = encoded_image_data[0]
     original_rows = encoded_image_data[1]
@@ -340,3 +342,5 @@ def decoder(encoded_image_name, encoded_image_data, verbose=False, show_plots=Fa
     decoded_image = unpadded_image
 
     return decoded_image, output_file
+
+# endregion Public Functions

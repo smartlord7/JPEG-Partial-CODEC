@@ -16,6 +16,8 @@ from numpy import r_
 from scipy.fftpack import dct, idct
 
 
+# region Public Functions
+
 def split_matrix_blockwise(array, block_size):
     """
     Split a matrix into sub-matrices.
@@ -161,3 +163,5 @@ def plot_f(image):
     Function to apply before plotting the data
     """
     return np.log2(np.abs(image) + 0.0001)
+
+# endregion Public Functions

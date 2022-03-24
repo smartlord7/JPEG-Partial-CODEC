@@ -15,6 +15,8 @@ from modules.entropy import *
 from modules.util import out
 
 
+# region Public Functions
+
 def calc_error_image(original_image, decompressed_image):
     """
     Function that calculates the image error:
@@ -89,7 +91,15 @@ def show_jpeg_metrics(original_image, decompressed_image, output_file):
           calc_snr(original_image, decompressed_image),
           calc_psnr(original_image, decompressed_image)))
 
-
+    """
+    Function to show the calculated entropic stats
+    :param name: Name of the image/file
+    :param arrays: list of arrays
+    :param channels: the used channels
+    :param info: the image information
+    :param output_file: the output file with the information
+    :param directory: the directory to put the histogram images
+    """
 def calc_entropic_stats(name, arrays, channels, info, output_file, directory=os.getcwd()):
     i = 0
 
@@ -111,3 +121,5 @@ def calc_entropic_stats(name, arrays, channels, info, output_file, directory=os.
     out(output_file, "................................................")
 
     fig.savefig(directory + "\\" + name + info + "entropic.png")
+
+# endregion Public Functions

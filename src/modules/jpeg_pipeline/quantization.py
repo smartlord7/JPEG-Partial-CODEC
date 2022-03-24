@@ -13,6 +13,8 @@ import cv2
 import numpy as np
 
 
+# region Public Functions
+
 def get_scale_factor(quality_factor):
     """
     Function that retrieves the scale factor of the image.
@@ -27,10 +29,10 @@ def get_scale_factor(quality_factor):
 
 def get_scaled_quantization_matrix(quality_factor, quantization_matrix):
     """
-        Function that retrieves the scaled quantization matrix.
-        :param quality_factor: the quality factor of the image.
-        :param quantization_matrix: the quantization matrix.
-        :return: the final quantization matrix.
+    Function that retrieves the scaled quantization matrix.
+    :param quality_factor: the quality factor of the image.
+    :param quantization_matrix: the quantization matrix.
+    :return: the final quantization matrix.
     """
     scale_factor = get_scale_factor(quality_factor)
 
@@ -72,3 +74,5 @@ def apply_inverse_quantization(matrix, quality_factor, quantization_matrix):
                            interpolation=cv2.INTER_CUBIC)
 
     return matrix * resized_q
+
+# endregion Public Functions

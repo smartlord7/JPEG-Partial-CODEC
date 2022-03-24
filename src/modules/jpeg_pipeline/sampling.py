@@ -14,6 +14,8 @@ import numpy as np
 import cv2
 
 
+# region Public Functions
+
 def parse_down_sample_variant(variant):
     """
     Function that parses the down sample variant
@@ -109,3 +111,5 @@ def up_sample(cb, cr, variant, interpolation_type=None):
         return cb, cr
 
     return cb_up_sampled, cr_up_sampled
+
+# endregion Public Functions

@@ -13,11 +13,13 @@ import os
 import numpy as np
 
 
+# region Public Functions
+
 def separate_channels(img):
     """
-             Separates the rgb channels of an image.
-             :param img: the image.
-             :return: RGB channels.
+    Separates the rgb channels of an image.
+    :param img: the image.
+    :return: RGB channels.
     """
 
     return img[:, :, 0], img[:, :, 1], img[:, :, 2]
@@ -25,11 +27,11 @@ def separate_channels(img):
 
 def join_channels(c1, c2, c3):
     """
-             Function that joins the RGB channels in one.
-             :param c1: RGB Channel 1.
-             :param c2: RGB Channel 2.
-             :param c3: RGB Channel 3.
-             :return: image that results in the junction of the 3 channels.
+    Function that joins the RGB channels in one.
+    :param c1: RGB Channel 1.
+    :param c2: RGB Channel 2.
+    :param c3: RGB Channel 3.
+    :return: image that results in the junction of the 3 channels.
     """
     shape = (c1.shape[0], c2.shape[1], 3)
     image = np.zeros(shape)
@@ -42,9 +44,9 @@ def join_channels(c1, c2, c3):
 
 def float_to_uint8(matrix):
     """
-                Converts float to uint8.
-                :param matrix: Matrix with the floats.
-                :return: UINT8 converted matrix.
+    Converts float to uint8.
+    :param matrix: Matrix with the floats.
+    :return: UINT8 converted matrix.
     """
     matrix = matrix.round()
     matrix[matrix > 255] = 255
@@ -55,10 +57,21 @@ def float_to_uint8(matrix):
 
 
 def out(output_file, string):
+    """
+    Function to show the output.
+    :param output_file: The output file.
+    :param string: The name of the file.
+    """
     print(string)
     output_file.write(string + "\n")
     
 
 def mkdir_if_not_exists(img_dir_path):
+    """
+    Function to show the output.
+    :param img_dir_path: the image directory path.
+    """
     if not os.path.exists(img_dir_path):
         os.mkdir(img_dir_path)
+
+# endregion Public Functions
