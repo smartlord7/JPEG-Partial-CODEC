@@ -21,20 +21,18 @@ from modules.jpeg_pipeline.sampling import *
 from modules.jpeg_pipeline.quantization import *
 
 
-# region Public Functions
-
-def encoder(image_data, down_sample_variant, block_size, quality_factor,
-            interpolation_type=cv2.INTER_CUBIC, show_plots=False, verbose=False):
+def encoder(image_data: tuple, down_sample_variant: str, block_size: int, quality_factor: float,
+            interpolation_type: int = cv2.INTER_CUBIC, save_plots: bool = False, verbose: bool = False):
     """
-    Enconder function.
-    :param verbose:
-    :param interpolation_type:
-    :param image_data: the image to encode.
-    :param down_sample_variant: The variant of the down sample
-    :param block_size: the size of the block
-    :param quality_factor: the quality factor to encode
-    :param show_plots: flag that enables plotting.
-    :return: the encoded image and the y copy.
+                                       Enconder function.
+                                       :param verbose:
+                                       :param interpolation_type:
+                                       :param image_data: the image to encode.
+                                       :param down_sample_variant: The variant of the down sample
+                                       :param block_size: the size of the block
+                                       :param quality_factor: the quality factor to encode
+                                       :param save_plots: flag that enables plotting.
+                                       :return: the encoded image and the y copy.
     """
     image_name = image_data[0]
     image_matrix = image_data[1]
@@ -77,11 +75,11 @@ def encoder(image_data, down_sample_variant, block_size, quality_factor,
     if verbose:
         out(output_file, "Applied padding of %s rows and %s columns" % (added_rows, added_cols))
 
-    if show_plots:
+    if save_plots:
         save_images(padded_image, img_id + "-Padded+" + added_rows + "+" + added_cols, None, None, img_dir_path)
 
     r, g, b = separate_channels(padded_image)
-    if show_plots:
+    if save_plots:
         save_images(r, img_id + "-RRed", RED_CMAP, None, img_dir_path)
         save_images(g, img_id + "-GGreen", GREEN_CMAP, None, img_dir_path)
         save_images(b, img_id + "-BBlue", BLUE_CMAP, None, img_dir_path)
@@ -99,14 +97,15 @@ def encoder(image_data, down_sample_variant, block_size, quality_factor,
     y, cb, cr = separate_channels(y_cb_cr_image)
     total_time += perf_counter() - timer
 
-    calc_entropic_stats(image_name, [float_to_uint8(y), float_to_uint8(cb), float_to_uint8(cr)], ["Y", "Cb", "Cr"], "YCbCr", output_file, img_dir_path)
+    calc_entropic_stats(image_name, [float_to_uint8(y), float_to_uint8(cb), float_to_uint8(cr)], ["Y", "Cb", "Cr"],
+                        "YCbCr", output_file, img_dir_path)
 
     if verbose:
         out(output_file, "Separated Y, Cb and Cr channels")
 
     y_copy = y
 
-    if show_plots:
+    if save_plots:
         save_images(y, img_id + "-YGrey", GREY_CMAP, None, img_dir_path)
         save_images(cb, img_id + "-CbGrey", GREY_CMAP, None, img_dir_path)
         save_images(cr, img_id + "-CrGrey", GREY_CMAP, None, img_dir_path)
@@ -121,7 +120,7 @@ def encoder(image_data, down_sample_variant, block_size, quality_factor,
         out(output_file, "Down sampled Cb and Cr channels using %s - shape: %s - compression ratio: %.2f%%" %
             (down_sample_variant, cb.shape, ((n - n_new) / n * 100)))
 
-    if show_plots:
+    if save_plots:
         save_images(cb, img_id + "-CbDownSampled", GREY_CMAP, plot_f, img_dir_path)
         save_images(cr, img_id + "-CrDownSampled", GREY_CMAP, plot_f, img_dir_path)
 
@@ -129,7 +128,7 @@ def encoder(image_data, down_sample_variant, block_size, quality_factor,
     cb_dct_total = apply_dct(cb)
     cr_dct_total = apply_dct(cr)
 
-    if show_plots:
+    if save_plots:
         save_images(y_dct_total, img_id + "-YTotalDCT", GREY_CMAP, plot_f, img_dir_path)
         save_images(cb_dct_total, img_id + "-CbTotalDCT", GREY_CMAP, plot_f, img_dir_path)
         save_images(cr_dct_total, img_id + "-CrTotalDCT", GREY_CMAP, plot_f, img_dir_path)
@@ -138,7 +137,7 @@ def encoder(image_data, down_sample_variant, block_size, quality_factor,
     cb_idct_total = apply_inverse_dct(cb_dct_total)
     cr_idct_total = apply_inverse_dct(cr_dct_total)
 
-    if show_plots:
+    if save_plots:
         save_images(y_idct_total, img_id + "-YTotalIDCT", GREY_CMAP, None, img_dir_path)
         save_images(cb_idct_total, img_id + "-CbTotalIDCT", GREY_CMAP, None, img_dir_path)
         save_images(cr_idct_total, img_id + "-CrTotalIDCT", GREY_CMAP, None, img_dir_path)
@@ -156,12 +155,13 @@ def encoder(image_data, down_sample_variant, block_size, quality_factor,
     joined_cb_dct_blocks = join_matrix_blockwise(cb_dct_blocks)
     joined_cr_dct_blocks = join_matrix_blockwise(cr_dct_blocks)
 
-    if show_plots:
+    if save_plots:
         save_images(joined_y_dct_blocks, img_id + "-YDCT", GREY_CMAP, plot_f, img_dir_path)
         save_images(joined_cb_dct_blocks, img_id + "-CbDCT", GREY_CMAP, plot_f, img_dir_path)
         save_images(joined_cr_dct_blocks, img_id + "-CrDCT", GREY_CMAP, plot_f, img_dir_path)
 
-    calc_entropic_stats(image_name, [float_to_uint8(joined_y_dct_blocks), float_to_uint8(joined_cb_dct_blocks), float_to_uint8(joined_cr_dct_blocks)],
+    calc_entropic_stats(image_name, [float_to_uint8(joined_y_dct_blocks), float_to_uint8(joined_cb_dct_blocks),
+                                     float_to_uint8(joined_cr_dct_blocks)],
                         ["Y", "Cb", "Cr"], "DCT %dx%d" % (block_size, block_size), output_file, img_dir_path)
 
     timer = perf_counter()
@@ -177,13 +177,14 @@ def encoder(image_data, down_sample_variant, block_size, quality_factor,
     joined_cb_blocks_quantized = join_matrix_blockwise(cb_blocks_quantized)
     joined_cr_blocks_quantized = join_matrix_blockwise(cr_blocks_quantized)
 
-    if show_plots:
+    if save_plots:
         save_images(joined_y_blocks_quantized, img_id + "-YQuantized", GREY_CMAP, plot_f, img_dir_path)
         save_images(joined_cb_blocks_quantized, img_id + "-CbQuantized", GREY_CMAP, plot_f, img_dir_path)
         save_images(joined_cr_blocks_quantized, img_id + "-CrQuantized", GREY_CMAP, plot_f, img_dir_path)
 
-    calc_entropic_stats(image_name, [float_to_uint8(joined_y_blocks_quantized), float_to_uint8(joined_cb_blocks_quantized),
-                                     float_to_uint8(joined_cr_blocks_quantized)],
+    calc_entropic_stats(image_name,
+                        [float_to_uint8(joined_y_blocks_quantized), float_to_uint8(joined_cb_blocks_quantized),
+                         float_to_uint8(joined_cr_blocks_quantized)],
                         ["Y", "Cb", "Cr"], "DCT %dx%d Quantized" % (block_size, block_size), output_file, img_dir_path)
 
     timer = perf_counter()
@@ -199,7 +200,7 @@ def encoder(image_data, down_sample_variant, block_size, quality_factor,
     joined_cb_blocks_dpcm = join_matrix_blockwise(cb_blocks_dpcm)
     joined_cr_blocks_dpcm = join_matrix_blockwise(cr_blocks_dpcm)
 
-    if show_plots:
+    if save_plots:
         save_images(joined_y_blocks_dpcm, img_id + "-YDPCM", GREY_CMAP, plot_f, img_dir_path)
         save_images(joined_cb_blocks_dpcm, img_id + "-CbDPCM", GREY_CMAP, plot_f, img_dir_path)
         save_images(joined_cr_blocks_dpcm, img_id + "-CrDPCM", GREY_CMAP, plot_f, img_dir_path)
@@ -209,8 +210,9 @@ def encoder(image_data, down_sample_variant, block_size, quality_factor,
                          float_to_uint8(joined_cr_blocks_dpcm)],
                         ["Y", "Cb", "Cr"], "DCT DC DPCM", output_file, img_dir_path)
 
-    out(output_file, "Elapsed compression time: %.3fms" % total_time)
-    out(output_file, "----------------------------------\n")
+    if verbose:
+        out(output_file, "Elapsed compression time: %.3fms" % total_time)
+        out(output_file, "----------------------------------\n")
 
     output_file.close()
 
@@ -218,14 +220,14 @@ def encoder(image_data, down_sample_variant, block_size, quality_factor,
            n_cols, down_sample_variant, quality_factor, block_size, interpolation_type, y_copy
 
 
-def decoder(encoded_image_name, encoded_image_data, verbose=False, show_plots=False):
+def decoder(encoded_image_name: str, encoded_image_data, verbose: bool = False, save_plots: bool = False):
     """
-    Decode function.
-    :param encoded_image_name:
-    :param verbose:
-    :param show_plots:
-    :param encoded_image_data: the image to decode.
-    :return: the decoded image and the y copy error.
+                                           Decode function.
+                                           :param encoded_image_name:
+                                           :param verbose:
+                                           :param save_plots:
+                                           :param encoded_image_data: the image to decode.
+                                           :return: the decoded image and the y copy error.
     """
     encoded_image = encoded_image_data[0]
     original_rows = encoded_image_data[1]
@@ -262,7 +264,7 @@ def decoder(encoded_image_name, encoded_image_data, verbose=False, show_plots=Fa
     if verbose:
         out(output_file, "Applied inverse DPCM encoding")
 
-    if show_plots:
+    if save_plots:
         save_images(join_matrix_blockwise(y_idpcm), img_id + "-YIDPCM", GREY_CMAP, plot_f, img_dir_path)
         save_images(join_matrix_blockwise(cb_idpcm), img_id + "-CbIDPCM", GREY_CMAP, plot_f, img_dir_path)
         save_images(join_matrix_blockwise(cr_idpcm), img_id + "-CrIDPCM", GREY_CMAP, plot_f, img_dir_path)
@@ -276,7 +278,7 @@ def decoder(encoded_image_name, encoded_image_data, verbose=False, show_plots=Fa
     if verbose:
         out(output_file, "Applied dequantization")
 
-    if show_plots:
+    if save_plots:
         save_images(join_matrix_blockwise(y_idpcm), img_id + "-YDequantized", GREY_CMAP, plot_f, img_dir_path)
         save_images(join_matrix_blockwise(cb_idpcm), img_id + "-CbDequantized", GREY_CMAP, plot_f, img_dir_path)
         save_images(join_matrix_blockwise(cr_idpcm), img_id + "-CrDequantized", GREY_CMAP, plot_f, img_dir_path)
@@ -290,7 +292,7 @@ def decoder(encoded_image_name, encoded_image_data, verbose=False, show_plots=Fa
     if verbose:
         out(output_file, "Applied inverse DCT")
 
-    if show_plots:
+    if save_plots:
         save_images(y_inverse_dct, img_id + "-YIDCT", GREY_CMAP, None, img_dir_path)
         save_images(cb_inverse_dct, img_id + "-CbIDCT", GREY_CMAP, None, img_dir_path)
         save_images(cr_inverse_dct, img_id + "-CrIDCT", GREY_CMAP, None, img_dir_path)
@@ -304,7 +306,7 @@ def decoder(encoded_image_name, encoded_image_data, verbose=False, show_plots=Fa
     if verbose:
         out(output_file, "Applied up sampling using %s" % down_sample_variant)
 
-    if show_plots:
+    if save_plots:
         save_images(cb_up_sampled, img_id + "-CbUpSampled", GREY_CMAP, None, img_dir_path)
         save_images(cr_up_sampled, img_id + "-CrUpSampled", GREY_CMAP, None, img_dir_path)
 
@@ -322,7 +324,7 @@ def decoder(encoded_image_name, encoded_image_data, verbose=False, show_plots=Fa
     if verbose:
         out(output_file, "Converted YCbCr to RGB")
 
-    if show_plots:
+    if save_plots:
         save_images(rgb_image, img_id + "-RGB", None, None, img_dir_path)
 
     timer = perf_counter()
@@ -332,7 +334,7 @@ def decoder(encoded_image_name, encoded_image_data, verbose=False, show_plots=Fa
     if verbose:
         out(output_file, "Applied inverse padding")
 
-    if show_plots:
+    if save_plots:
         save_images(unpadded_image, img_id + "-Unpadded", None, None, img_dir_path)
 
     out(output_file, "Elapsed decompression time: %.3fms" % total_time)
@@ -342,5 +344,3 @@ def decoder(encoded_image_name, encoded_image_data, verbose=False, show_plots=Fa
     decoded_image = unpadded_image
 
     return decoded_image, output_file
-
-# endregion Public Functions

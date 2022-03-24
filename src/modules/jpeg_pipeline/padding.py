@@ -14,16 +14,14 @@ import cv2
 import numpy as np
 
 
-# region Public Functions
-
-def apply_padding(image, wanted_rows, wanted_cols, interpolation_type=None):
+def apply_padding(image: np.ndarray, wanted_rows: int, wanted_cols: int, interpolation_type: int = None):
     """
-    Applies padding to the image.
-    :param image: the image to pad.
-    :param wanted_rows: number of rows to pad.
-    :param wanted_cols: number of columns to pad.
-    :param interpolation_type: the chosen interpolation.
-    :return: the image with padding.
+                            Applies padding to the image.
+                            :param image: the image to pad.
+                            :param wanted_rows: number of rows to pad.
+                            :param wanted_cols: number of columns to pad.
+                            :param interpolation_type: the chosen interpolation.
+                            :return: the image with padding.
     """
     n_rows = image.shape[0]
     n_cols = image.shape[1]
@@ -59,14 +57,14 @@ def apply_padding(image, wanted_rows, wanted_cols, interpolation_type=None):
     return image
 
 
-def inverse_padding(padded_image, original_rows, original_cols, interpolation_type=None):
+def inverse_padding(padded_image: np.ndarray, original_rows: int, original_cols: int, interpolation_type: int = None):
     """
-    Reverses the padding.
-    :param padded_image: the padded image to unpad.
-    :param original_rows: number of original rows.
-    :param original_cols: number of original columns.
-    :param interpolation_type: the chosen interpolation.
-    :return: the original image.
+                                Reverses the padding.
+                                :param padded_image: the padded image to unpad.
+                                :param original_rows: number of original rows.
+                                :param original_cols: number of original columns.
+                                :param interpolation_type: the chosen interpolation.
+                                :return: the original image.
     """
     n_rows = padded_image.shape[0]
     n_cols = padded_image.shape[1]
@@ -85,5 +83,3 @@ def inverse_padding(padded_image, original_rows, original_cols, interpolation_ty
             padded_image = np.delete(padded_image, cols_to_delete, axis=1)
 
         return padded_image
-
-# endregion Public Functions

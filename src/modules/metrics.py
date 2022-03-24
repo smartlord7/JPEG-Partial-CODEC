@@ -15,8 +15,6 @@ from modules.entropy import *
 from modules.util import out
 
 
-# region Public Functions
-
 def calc_error_image(original_image, decompressed_image):
     """
     Function that calculates the image error:
@@ -91,24 +89,16 @@ def show_jpeg_metrics(original_image, decompressed_image, output_file):
           calc_snr(original_image, decompressed_image),
           calc_psnr(original_image, decompressed_image)))
 
-    """
-    Function to show the calculated entropic stats
-    :param name: Name of the image/file
-    :param arrays: list of arrays
-    :param channels: the used channels
-    :param info: the image information
-    :param output_file: the output file with the information
-    :param directory: the directory to put the histogram images
-    """
+
 def calc_entropic_stats(name, arrays, channels, info, output_file, directory=os.getcwd()):
     i = 0
 
     out(output_file, "................................................")
-    fig = plt.figure()
+    f = plt.figure(figsize=(19.8, 10.8))
     for array in arrays:
         l = array.shape[0] * array.shape[1]
         array = np.ndarray.flatten(array)
-        ax = fig.add_subplot(1, 3, i + 1)
+        ax = f.add_subplot(1, 3, i + 1)
         hist = gen_histogram(array, 256)
         entropy_val = entropy(hist, l)
         out(output_file, "Entropy %s - %s: %.2f bits" % (channels[i], info, entropy_val))
@@ -119,7 +109,8 @@ def calc_entropic_stats(name, arrays, channels, info, output_file, directory=os.
         ax.bar(ALPHABET, hist)
         i += 1
     out(output_file, "................................................")
-
-    fig.savefig(directory + "\\" + name + info + "entropic.png")
-
-# endregion Public Functions
+    f.savefig(directory + "\\" + name + info + "entropic.png", dpi=100)
+    f.clear()
+    plt.close()
+    plt.cla()
+    plt.clf()

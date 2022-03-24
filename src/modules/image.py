@@ -17,17 +17,15 @@ import matplotlib.colors as clr
 from matplotlib import pyplot as plt
 
 
-# region Public Functions
-
-def _save_image(image, name, cmap, func, directory):
+def _save_image(image: np.ndarray, name: str, cmap, func, directory: str):
     """
-    Given one image,the title and a color map this function will show the image with the title and the applied colormap
-    :param image: the image to show.
-    :param name: the name of the image to show.
-    :param cmap: the color map to be applied.
-    :param func: the function of the image.
+      Given one image,the title and a color map this function will show the image with the title and the applied colormap
+      :param image: the image to show.
+      :param name: the name of the image to show.
+      :param cmap: the color map to be applied.
+      :param func: the function of the image.
     """
-    f = plt.figure()
+    f = plt.figure(figsize=(19.8, 10.8))
     if name:
         plt.title(name)
     if func:
@@ -48,12 +46,12 @@ def _save_image(image, name, cmap, func, directory):
 
 def save_images(images, name, cmap, func, directory=os.getcwd()):
     """
-    Given one or more images,this function will show them in order
-    :param directory:
-    :param images: the image(s) to show.
-    :param name: the name of the image to show
-    :param cmap: the color map to be applied.
-    :param func: the function of the image.
+      Given one or more images,this function will show them in order
+      :param directory:
+      :param images: the image(s) to show.
+      :param name: the name of the image to show
+      :param cmap: the color map to be applied.
+      :param func: the function of the image.
     """
     t = type(images)
 
@@ -69,10 +67,10 @@ def save_images(images, name, cmap, func, directory=os.getcwd()):
 
 def read_images(directory, ext):
     """
-    Given one directory and a file extension,this function will create a dictionary of the images in the directory.
-    :param directory: the image(s) directory.
-    :param ext: the image(s) extension.
-    :return: dictionary with the images.
+          Given one directory and a file extension,this function will create a dictionary of the images in the directory.
+          :param directory: the image(s) directory.
+          :param ext: the image(s) extension.
+          :return: dictionary with the images.
     """
     images = dict()
 
@@ -87,10 +85,10 @@ def read_images(directory, ext):
 
 def read_images2(directory, ext):
     """
-    Given one directory and a file extension,this function will create a dictionary of the images in the directory.
-    :param directory: the image(s) directory.
-    :param ext: the image(s) extension.
-    :return: dictionary with the images.
+             Given one directory and a file extension,this function will create a dictionary of the images in the directory.
+             :param directory: the image(s) directory.
+             :param ext: the image(s) extension.
+             :return: dictionary with the images.
     """
     images = dict()
 
@@ -121,5 +119,3 @@ def image_equals(original_image, decoded_image):
     :return: if the image is equal or no.
     """
     return np.allclose(original_image, decoded_image)
-
-# endregion Public Functions

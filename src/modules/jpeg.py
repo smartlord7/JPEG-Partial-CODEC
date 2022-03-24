@@ -14,9 +14,7 @@ from matplotlib import pyplot as plt
 from modules.image import read_images2
 
 
-# region Public Functions
-
-def jpeg_compress_images(directory, ext, out_dir, quality_rates):
+def jpeg_compress_images(directory: str, ext: str, out_dir: str, quality_rates):
     """
     Compresses images.
     :param directory: images directory.
@@ -43,5 +41,3 @@ def jpeg_compress_images(directory, ext, out_dir, quality_rates):
         i += 1
 
     plt.show()
-
-# endregion Public Functions

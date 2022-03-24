@@ -14,9 +14,7 @@ import numpy as np
 import cv2
 
 
-# region Public Functions
-
-def parse_down_sample_variant(variant):
+def parse_down_sample_variant(variant: str):
     """
     Function that parses the down sample variant
     :param variant: the downsample variant
@@ -31,7 +29,7 @@ def parse_down_sample_variant(variant):
     return cb_fac, cr_fac, f
 
 
-def down_sample(cb, cr, variant, interpolation_type=None):
+def down_sample(cb: np.ndarray, cr: np.ndarray, variant: str, interpolation_type: int = None):
     """
     Function to down sample.
     :param cb: CB channel.
@@ -69,7 +67,7 @@ def down_sample(cb, cr, variant, interpolation_type=None):
     return cb_down_sampled, cr_down_sampled
 
 
-def up_sample(cb, cr, variant, interpolation_type=None):
+def up_sample(cb: np.ndarray, cr: np.ndarray, variant: str, interpolation_type: int = None):
     """
     Function to up sample.
     :param cb: CB channel.
@@ -111,5 +109,3 @@ def up_sample(cb, cr, variant, interpolation_type=None):
         return cb, cr
 
     return cb_up_sampled, cr_up_sampled
-
-# endregion Public Functions

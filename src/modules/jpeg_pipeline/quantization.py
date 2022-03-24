@@ -13,9 +13,7 @@ import cv2
 import numpy as np
 
 
-# region Public Functions
-
-def get_scale_factor(quality_factor):
+def get_scale_factor(quality_factor: float):
     """
     Function that retrieves the scale factor of the image.
     :param quality_factor: the quality factor of the image.
@@ -27,25 +25,26 @@ def get_scale_factor(quality_factor):
         return 50 / quality_factor
 
 
-def get_scaled_quantization_matrix(quality_factor, quantization_matrix):
+def get_scaled_quantization_matrix(quality_factor: float, quantization_matrix: np.ndarray):
     """
-    Function that retrieves the scaled quantization matrix.
-    :param quality_factor: the quality factor of the image.
-    :param quantization_matrix: the quantization matrix.
-    :return: the final quantization matrix.
+        Function that retrieves the scaled quantization matrix.
+        :param quality_factor: the quality factor of the image.
+        :param quantization_matrix: the quantization matrix.
+        :return: the final quantization matrix.
     """
     scale_factor = get_scale_factor(quality_factor)
 
     if scale_factor == 0:
         return np.ones((quantization_matrix.shape[0], quantization_matrix.shape[1]))
 
-    scaled_quantization_matrix = quantization_matrix * scale_factor
-    scaled_quantization_matrix[quantization_matrix * scale_factor > 255] = 255
+    scaled_quantization_matrix = np.round(quantization_matrix * scale_factor)
+    scaled_quantization_matrix[scaled_quantization_matrix > 255] = 255
+    scaled_quantization_matrix[scaled_quantization_matrix < 1] = 1
 
     return scaled_quantization_matrix
 
 
-def apply_quantization(matrix, quality_factor, quantization_matrix):
+def apply_quantization(matrix: np.ndarray, quality_factor: float, quantization_matrix: np.ndarray):
     """
     Function to apply quantization
     :param matrix: matrix to apply quantization
@@ -54,14 +53,17 @@ def apply_quantization(matrix, quality_factor, quantization_matrix):
     :return: the quantizated original matrix.
     """
 
-    resized_q = cv2.resize(get_scaled_quantization_matrix(quality_factor, quantization_matrix),
-                           (matrix.shape[2], matrix.shape[3]),
-                           interpolation=cv2.INTER_CUBIC)
+    if matrix.shape[2] == 8:
+        q = get_scaled_quantization_matrix(quality_factor, quantization_matrix)
+    else:
+        q = cv2.resize(get_scaled_quantization_matrix(quality_factor, quantization_matrix),
+                       (matrix.shape[2], matrix.shape[3]),
+                       interpolation=cv2.INTER_CUBIC)
 
-    return np.round(matrix / resized_q)
+    return np.round(matrix / q)
 
 
-def apply_inverse_quantization(matrix, quality_factor, quantization_matrix):
+def apply_inverse_quantization(matrix: np.ndarray, quality_factor: float, quantization_matrix: np.ndarray):
     """
     Function to apply inverse quantization
     :param matrix: matrix to apply quantization
@@ -74,5 +76,3 @@ def apply_inverse_quantization(matrix, quality_factor, quantization_matrix):
                            interpolation=cv2.INTER_CUBIC)
 
     return matrix * resized_q
-
-# endregion Public Functions
