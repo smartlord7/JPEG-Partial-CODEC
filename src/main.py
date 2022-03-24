@@ -9,8 +9,7 @@ Sancho Amaral Simões, 2019217590, uc2019217590@student.uc.pt
 Tiago Filipe Santa Ventura, 2019243695, uc2019243695@student.uc.pt
 Coimbra, 23rd March 2022
 ---------------------------------------------------------------------------"""
-from modules.entropy import *
-from modules.metrics import *
+
 from modules.jpeg_partial_codec import *
 
 
@@ -83,12 +82,9 @@ def codec_run(original_images, config):
 
     for encoded_image_name in encoded_images.keys():
         data = encoded_images[encoded_image_name]
-        print("Decompressed image %s" % encoded_image_name)
-        result = decoder(encoded_image_name, data, show_plots=config["show_plots"], verbose=config["verbose"])
+        result, output_file = decoder(encoded_image_name, data, show_plots=config["show_plots"], verbose=config["verbose"])
         image_old = original_images[encoded_image_name]
-        print("Distortion metrics")
-        show_jpeg_metrics(image_old, result)
-        print("--------------------")
+        show_jpeg_metrics(image_old, result, output_file)
 
 
 def main():

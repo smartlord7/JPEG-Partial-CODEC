@@ -12,6 +12,7 @@ Coimbra, 23rd March 2022
 
 from modules.const import *
 from modules.entropy import *
+from modules.util import out
 
 
 def calc_error_image(original_image, decompressed_image):
@@ -72,13 +73,14 @@ def calc_psnr(original_image, decompressed_image):
     return 10 * np.log10(max_val / calc_mse(original_image, decompressed_image))
 
 
-def show_jpeg_metrics(original_image, decompressed_image):
+def show_jpeg_metrics(original_image, decompressed_image, output_file):
     """
     Function to show the calculated metrics
     :param original_image: The original image
     :param decompressed_image: The decompressed image
     """
-    print("MSE: %.5f \n"
+    out(output_file, "Distortion metrics"
+          "MSE: %.5f \n"
           "RMSE: %.5f \n"
           "SNR: %.5f \n"
           "PSNR: %.5f" %
@@ -88,19 +90,25 @@ def show_jpeg_metrics(original_image, decompressed_image):
           calc_psnr(original_image, decompressed_image)))
 
 
-def show_entropic_stats(name, arrays, channels, info):
+def calc_entropic_stats(name, arrays, channels, info, output_file, directory=os.getcwd()):
     i = 0
 
-    print("..............................")
+    out(output_file, "................................................")
+    fig = plt.figure()
     for array in arrays:
         l = array.shape[0] * array.shape[1]
         array = np.ndarray.flatten(array)
-        plt.subplot(1, 3, i + 1)
+        ax = fig.add_subplot(1, 3, i + 1)
         hist = gen_histogram(array, 256)
         entropy_val = entropy(hist, l)
-        print("Entropy %s - %s: %.2f" % (channels[i], info, entropy_val))
-        plot_histogram(ALPHABET, hist, "%s %s Histogram" % (name, channels[i]))
+        out(output_file, "Entropy %s - %s: %.2f bits" % (channels[i], info, entropy_val))
+        plt.xticks(fontsize=5)
+        plt.title("%s %s Histogram" % (name, channels[i]))
+        plt.ylabel('Number of occurrences')
+        plt.xlabel('Symbol')
+        ax.bar(ALPHABET, hist)
         i += 1
+    out(output_file, "................................................")
 
-    plt.show()
+    fig.savefig(directory + "\\" + name + info + "entropic.png")
 

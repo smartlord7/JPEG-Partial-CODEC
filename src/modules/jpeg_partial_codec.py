@@ -49,7 +49,7 @@ def encoder(image_data, down_sample_variant, block_size, quality_factor,
     img_dir_path = OUTPUT_IMG_ENCODER_PATH + img_id + "COMP"
     mkdir_if_not_exists(img_dir_path)
 
-    out(output_file, "\n----------------------------------")
+    out(output_file, "------------------------------------------------")
     out(output_file, "Compressing %s (shape: %s) with quality factor of %.2f%% and %s down sampling..." % (
         image_name, image_matrix.shape, quality_factor, down_sample_variant))
 
@@ -84,7 +84,7 @@ def encoder(image_data, down_sample_variant, block_size, quality_factor,
         save_images(g, img_id + "-GGreen", GREEN_CMAP, None, img_dir_path)
         save_images(b, img_id + "-BBlue", BLUE_CMAP, None, img_dir_path)
 
-    show_entropic_stats(image_name, [r, g, b], ["R", "G", "B"], "Original")
+    calc_entropic_stats(image_name, [r, g, b], ["R", "G", "B"], "Original", output_file, img_dir_path)
 
     timer = perf_counter()
     y_cb_cr_image = rgb_to_y_cb_cr(padded_image, Y_CB_CR_MATRIX)
@@ -97,7 +97,7 @@ def encoder(image_data, down_sample_variant, block_size, quality_factor,
     y, cb, cr = separate_channels(y_cb_cr_image)
     total_time += perf_counter() - timer
 
-    show_entropic_stats(image_name, [float_to_uint8(y), float_to_uint8(cb), float_to_uint8(cr)], ["Y", "Cb", "Cr"], "YCbCr")
+    calc_entropic_stats(image_name, [float_to_uint8(y), float_to_uint8(cb), float_to_uint8(cr)], ["Y", "Cb", "Cr"], "YCbCr", output_file, img_dir_path)
 
     if verbose:
         out(output_file, "Separated Y, Cb and Cr channels")
@@ -159,8 +159,8 @@ def encoder(image_data, down_sample_variant, block_size, quality_factor,
         save_images(joined_cb_dct_blocks, img_id + "-CbDCT", GREY_CMAP, plot_f, img_dir_path)
         save_images(joined_cr_dct_blocks, img_id + "-CrDCT", GREY_CMAP, plot_f, img_dir_path)
 
-    show_entropic_stats(image_name, [float_to_uint8(joined_y_dct_blocks), float_to_uint8(joined_cb_dct_blocks), float_to_uint8(joined_cr_dct_blocks)],
-                        ["Y", "Cb", "Cr"], "DCT %dx%d" % (block_size, block_size))
+    calc_entropic_stats(image_name, [float_to_uint8(joined_y_dct_blocks), float_to_uint8(joined_cb_dct_blocks), float_to_uint8(joined_cr_dct_blocks)],
+                        ["Y", "Cb", "Cr"], "DCT %dx%d" % (block_size, block_size), output_file, img_dir_path)
 
     timer = perf_counter()
     y_blocks_quantized = apply_quantization(y_dct_blocks, quality_factor, JPEG_QUANTIZATION_Y)
@@ -180,9 +180,9 @@ def encoder(image_data, down_sample_variant, block_size, quality_factor,
         save_images(joined_cb_blocks_quantized, img_id + "-CbQuantized", GREY_CMAP, plot_f, img_dir_path)
         save_images(joined_cr_blocks_quantized, img_id + "-CrQuantized", GREY_CMAP, plot_f, img_dir_path)
 
-    show_entropic_stats(image_name, [float_to_uint8(joined_y_blocks_quantized), float_to_uint8(joined_cb_blocks_quantized),
+    calc_entropic_stats(image_name, [float_to_uint8(joined_y_blocks_quantized), float_to_uint8(joined_cb_blocks_quantized),
                                      float_to_uint8(joined_cr_blocks_quantized)],
-                        ["Y", "Cb", "Cr"], "DCT %dx%d Quantized" % (block_size, block_size))
+                        ["Y", "Cb", "Cr"], "DCT %dx%d Quantized" % (block_size, block_size), output_file, img_dir_path)
 
     timer = perf_counter()
     y_blocks_dpcm = apply_dpcm_encoding(y_blocks_quantized)
@@ -191,7 +191,7 @@ def encoder(image_data, down_sample_variant, block_size, quality_factor,
     total_time += perf_counter() - timer
 
     if verbose:
-        out(output_file, "Applied DPCM\n")
+        out(output_file, "Applied DPCM")
 
     joined_y_blocks_dpcm = join_matrix_blockwise(y_blocks_dpcm)
     joined_cb_blocks_dpcm = join_matrix_blockwise(cb_blocks_dpcm)
@@ -202,10 +202,10 @@ def encoder(image_data, down_sample_variant, block_size, quality_factor,
         save_images(joined_cb_blocks_dpcm, img_id + "-CbDPCM", GREY_CMAP, plot_f, img_dir_path)
         save_images(joined_cr_blocks_dpcm, img_id + "-CrDPCM", GREY_CMAP, plot_f, img_dir_path)
 
-    show_entropic_stats(image_name,
+    calc_entropic_stats(image_name,
                         [float_to_uint8(joined_y_blocks_dpcm), float_to_uint8(joined_cb_blocks_dpcm),
                          float_to_uint8(joined_cr_blocks_dpcm)],
-                        ["Y", "Cb", "Cr"], "DCT DC DPCM")
+                        ["Y", "Cb", "Cr"], "DCT DC DPCM", output_file, img_dir_path)
 
     out(output_file, "Elapsed compression time: %.3fms" % total_time)
     out(output_file, "----------------------------------\n")
@@ -243,7 +243,7 @@ def decoder(encoded_image_name, encoded_image_data, verbose=False, show_plots=Fa
     img_dir_path = OUTPUT_IMG_DECODER_PATH + img_id + "DECOMP"
     mkdir_if_not_exists(img_dir_path)
 
-    out(output_file, "\n----------------------------------")
+    out(output_file, "----------------------------------")
     out(output_file, "Decompressing %s with quality factor of %.2f%% and %s down sampling..." % (
         encoded_image_name, quality_factor, down_sample_variant))
 
@@ -339,6 +339,4 @@ def decoder(encoded_image_name, encoded_image_data, verbose=False, show_plots=Fa
     save_images(unpadded_image, img_id + "-Decompressed", None, None, img_dir_path)
     decoded_image = unpadded_image
 
-    output_file.close()
-
-    return decoded_image
+    return decoded_image, output_file
