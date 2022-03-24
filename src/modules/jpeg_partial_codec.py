@@ -11,6 +11,8 @@ Coimbra, 23rd March 2022
 ---------------------------------------------------------------------------"""
 
 from time import perf_counter
+
+from modules.metrics import calc_error_image
 from modules.util import *
 from modules.const import *
 from modules.image import *
@@ -22,13 +24,12 @@ from modules.jpeg_pipeline.sampling import *
 from modules.jpeg_pipeline.quantization import *
 
 
-def encoder(output_file, image_data, down_sample_variant, block_size, quality_factor,
+def encoder(image_data, down_sample_variant, block_size, quality_factor,
             interpolation_type=cv2.INTER_CUBIC, show_plots=False, verbose=False):
     """
                                        Enconder function.
                                        :param verbose:
                                        :param interpolation_type:
-                                       :param output_file:
                                        :param image_data: the image to encode.
                                        :param down_sample_variant: The variant of the down sample
                                        :param block_size: the size of the block
@@ -44,6 +45,12 @@ def encoder(output_file, image_data, down_sample_variant, block_size, quality_fa
     total_time = int()
     img_id = image_name + "-Q" + str(quality_factor) + "D" + down_sample_variant.replace(":", "") + "B" + str(
         block_size) + "I" + str(interpolation_type)
+
+    mkdir_if_not_exists(OUTPUT_TXT_ENCODER_PATH)
+    output_file_path = OUTPUT_TXT_ENCODER_PATH + img_id + ".txt"
+    output_file = open(output_file_path, "w")
+    img_dir_path = OUTPUT_IMG_ENCODER_PATH + img_id + "COMP"
+    mkdir_if_not_exists(img_dir_path)
 
     out(output_file, "\n----------------------------------")
     out(output_file, "Compressing %s (shape: %s) with quality factor of %.2f%% and %s down sampling..." % (
@@ -72,13 +79,13 @@ def encoder(output_file, image_data, down_sample_variant, block_size, quality_fa
         out(output_file, "Applied padding of %s rows and %s columns" % (added_rows, added_cols))
 
     if show_plots:
-        show_images(padded_image, img_id + "-Padded+" + added_rows + "+" + added_cols, None, None)
+        save_images(padded_image, img_id + "-Padded+" + added_rows + "+" + added_cols, None, None, img_dir_path)
 
     r, g, b = separate_channels(padded_image)
     if show_plots:
-        show_images(r, img_id + "-RRed", RED_CMAP, None)
-        show_images(g, img_id + "-GGreen", GREEN_CMAP, None)
-        show_images(b, img_id + "-BBlue", BLUE_CMAP, None)
+        save_images(r, img_id + "-RRed", RED_CMAP, None, img_dir_path)
+        save_images(g, img_id + "-GGreen", GREEN_CMAP, None, img_dir_path)
+        save_images(b, img_id + "-BBlue", BLUE_CMAP, None, img_dir_path)
 
     timer = perf_counter()
     y_cb_cr_image = rgb_to_y_cb_cr(padded_image, Y_CB_CR_MATRIX)
@@ -97,9 +104,9 @@ def encoder(output_file, image_data, down_sample_variant, block_size, quality_fa
     y_copy = y
 
     if show_plots:
-        show_images(y, img_id + "-YGrey", GREY_CMAP, None)
-        show_images(cb, img_id + "-CbGrey", GREY_CMAP, None)
-        show_images(cr, img_id + "-CrGrey", GREY_CMAP, None)
+        save_images(y, img_id + "-YGrey", GREY_CMAP, None, img_dir_path)
+        save_images(cb, img_id + "-CbGrey", GREY_CMAP, None, img_dir_path)
+        save_images(cr, img_id + "-CrGrey", GREY_CMAP, None, img_dir_path)
 
     timer = perf_counter()
     cb, cr = down_sample(cb, cr, down_sample_variant, interpolation_type=interpolation_type)
@@ -112,26 +119,26 @@ def encoder(output_file, image_data, down_sample_variant, block_size, quality_fa
             (down_sample_variant, cb.shape, ((n - n_new) / n * 100)))
 
     if show_plots:
-        show_images(cb, img_id + "-CbDownSampled", GREY_CMAP, plot_f)
-        show_images(cr, img_id + "-CrDownSampled", GREY_CMAP, plot_f)
+        save_images(cb, img_id + "-CbDownSampled", GREY_CMAP, plot_f, img_dir_path)
+        save_images(cr, img_id + "-CrDownSampled", GREY_CMAP, plot_f, img_dir_path)
 
     y_dct_total = apply_dct(y)
     cb_dct_total = apply_dct(cb)
     cr_dct_total = apply_dct(cr)
 
     if show_plots:
-        show_images(y_dct_total, img_id + "-YTotalDCT", GREY_CMAP, plot_f)
-        show_images(cb_dct_total, img_id + "-CbTotalDCT", GREY_CMAP, plot_f)
-        show_images(cr_dct_total, img_id + "-CrTotalDCT", GREY_CMAP, plot_f)
+        save_images(y_dct_total, img_id + "-YTotalDCT", GREY_CMAP, plot_f, img_dir_path)
+        save_images(cb_dct_total, img_id + "-CbTotalDCT", GREY_CMAP, plot_f, img_dir_path)
+        save_images(cr_dct_total, img_id + "-CrTotalDCT", GREY_CMAP, plot_f, img_dir_path)
 
     y_idct_total = apply_inverse_dct(y_dct_total)
     cb_idct_total = apply_inverse_dct(cb_dct_total)
     cr_idct_total = apply_inverse_dct(cr_dct_total)
 
     if show_plots:
-        show_images(y_idct_total, img_id + "-YTotalIDCT", GREY_CMAP, None)
-        show_images(cb_idct_total, img_id + "-CbTotalIDCT", GREY_CMAP, None)
-        show_images(cr_idct_total, img_id + "-CrTotalIDCT", GREY_CMAP, None)
+        save_images(y_idct_total, img_id + "-YTotalIDCT", GREY_CMAP, None, img_dir_path)
+        save_images(cb_idct_total, img_id + "-CbTotalIDCT", GREY_CMAP, None, img_dir_path)
+        save_images(cr_idct_total, img_id + "-CrTotalIDCT", GREY_CMAP, None, img_dir_path)
 
     timer = perf_counter()
     y_dct_blocks = apply_dct_blocks_optimized(y, block_size)
@@ -147,9 +154,9 @@ def encoder(output_file, image_data, down_sample_variant, block_size, quality_fa
     joined_cr_dct_blocks = join_matrix_blockwise(cr_dct_blocks)
 
     if show_plots:
-        show_images(joined_y_dct_blocks, img_id + "-YDCT", GREY_CMAP, plot_f)
-        show_images(joined_cb_dct_blocks, img_id + "-CbDCT", GREY_CMAP, plot_f)
-        show_images(joined_cr_dct_blocks, img_id + "-CrDCT", GREY_CMAP, plot_f)
+        save_images(joined_y_dct_blocks, img_id + "-YDCT", GREY_CMAP, plot_f, img_dir_path)
+        save_images(joined_cb_dct_blocks, img_id + "-CbDCT", GREY_CMAP, plot_f, img_dir_path)
+        save_images(joined_cr_dct_blocks, img_id + "-CrDCT", GREY_CMAP, plot_f, img_dir_path)
 
     timer = perf_counter()
     y_blocks_quantized = apply_quantization(y_dct_blocks, quality_factor, JPEG_QUANTIZATION_Y)
@@ -161,9 +168,9 @@ def encoder(output_file, image_data, down_sample_variant, block_size, quality_fa
         out(output_file, "Applied quantization using quality factor %.2f%%" % quality_factor)
 
     if show_plots:
-        show_images(join_matrix_blockwise(y_blocks_quantized), img_id + "-YQuantized", GREY_CMAP, plot_f)
-        show_images(join_matrix_blockwise(cb_blocks_quantized), img_id + "-CbQuantized", GREY_CMAP, plot_f)
-        show_images(join_matrix_blockwise(cr_blocks_quantized), img_id + "-CrQuantized", GREY_CMAP, plot_f)
+        save_images(join_matrix_blockwise(y_blocks_quantized), img_id + "-YQuantized", GREY_CMAP, plot_f, img_dir_path)
+        save_images(join_matrix_blockwise(cb_blocks_quantized), img_id + "-CbQuantized", GREY_CMAP, plot_f, img_dir_path)
+        save_images(join_matrix_blockwise(cr_blocks_quantized), img_id + "-CrQuantized", GREY_CMAP, plot_f, img_dir_path)
 
     timer = perf_counter()
     y_blocks_dpcm = apply_dpcm_encoding(y_blocks_quantized)
@@ -173,18 +180,25 @@ def encoder(output_file, image_data, down_sample_variant, block_size, quality_fa
 
     if verbose:
         out(output_file, "Applied DPCM\n")
-        print("Applied DPCM\n")
 
-    out(output_file, "Elapsed compression timer: %.3fms" % total_time)
+    if show_plots:
+        save_images(join_matrix_blockwise(y_blocks_dpcm), img_id + "-YDPCM", GREY_CMAP, plot_f, img_dir_path)
+        save_images(join_matrix_blockwise(cb_blocks_dpcm), img_id + "-CbDPCM", GREY_CMAP, plot_f, img_dir_path)
+        save_images(join_matrix_blockwise(cr_blocks_dpcm), img_id + "-CrDPCM", GREY_CMAP, plot_f, img_dir_path)
+
+    out(output_file, "Elapsed compression time: %.3fms" % total_time)
     out(output_file, "----------------------------------\n")
 
+    output_file.close()
+
     return (y_blocks_dpcm, cb_blocks_dpcm, cr_blocks_dpcm), n_rows, \
-           n_cols, down_sample_variant, quality_factor, block_size, y_copy
+           n_cols, down_sample_variant, quality_factor, block_size, interpolation_type, y_copy
 
 
 def decoder(encoded_image_name, encoded_image_data, verbose=False, show_plots=False):
     """
                                            Decode function.
+                                           :param encoded_image_name:
                                            :param verbose:
                                            :param show_plots:
                                            :param encoded_image_data: the image to decode.
@@ -196,12 +210,20 @@ def decoder(encoded_image_name, encoded_image_data, verbose=False, show_plots=Fa
     down_sample_variant = encoded_image_data[3]
     quality_factor = encoded_image_data[4]
     block_size = encoded_image_data[5]
+    interpolation_type = encoded_image_data[6]
+    y_original = encoded_image_data[7]
     total_time = int()
     img_id = encoded_image_name + "-Q" + str(quality_factor) + "D" + down_sample_variant.replace(":", "") + "B" + str(
-        block_size) + "I"
+        block_size) + "I" + str(interpolation_type)
 
-    print("\n----------------------------------")
-    print("Decompressing %s with quality factor of %.2f%% and %s down sampling..." % (
+    mkdir_if_not_exists(OUTPUT_TXT_DECODER_PATH)
+    output_file_path = OUTPUT_TXT_DECODER_PATH + img_id + ".txt"
+    output_file = open(output_file_path, "w")
+    img_dir_path = OUTPUT_IMG_DECODER_PATH + img_id + "DECOMP"
+    mkdir_if_not_exists(img_dir_path)
+
+    out(output_file, "\n----------------------------------")
+    out(output_file, "Decompressing %s with quality factor of %.2f%% and %s down sampling..." % (
         encoded_image_name, quality_factor, down_sample_variant))
 
     y = encoded_image[0]
@@ -213,10 +235,14 @@ def decoder(encoded_image_name, encoded_image_data, verbose=False, show_plots=Fa
     cb_idpcm = apply_dpcm_decoding(cb)
     cr_idpcm = apply_dpcm_decoding(cr)
     total_time += perf_counter() - timer
-    img_id = encoded_image_name + "-Q" + str(quality_factor) + "D" + down_sample_variant
 
     if verbose:
-        print("Applied inverse DPCM encoding")
+        out(output_file, "Applied inverse DPCM encoding")
+
+    if show_plots:
+        save_images(join_matrix_blockwise(y_idpcm), img_id + "-YIDPCM", GREY_CMAP, plot_f, img_dir_path)
+        save_images(join_matrix_blockwise(cb_idpcm), img_id + "-CbIDPCM", GREY_CMAP, plot_f, img_dir_path)
+        save_images(join_matrix_blockwise(cr_idpcm), img_id + "-CrIDPCM", GREY_CMAP, plot_f, img_dir_path)
 
     timer = perf_counter()
     y_dequantized = apply_inverse_quantization(y_idpcm, quality_factor, JPEG_QUANTIZATION_Y)
@@ -225,7 +251,12 @@ def decoder(encoded_image_name, encoded_image_data, verbose=False, show_plots=Fa
     total_time += perf_counter() - timer
 
     if verbose:
-        print("Applied dequantization")
+        out(output_file, "Applied dequantization")
+
+    if show_plots:
+        save_images(join_matrix_blockwise(y_idpcm), img_id + "-YDequantized", GREY_CMAP, plot_f, img_dir_path)
+        save_images(join_matrix_blockwise(cb_idpcm), img_id + "-CbDequantized", GREY_CMAP, plot_f, img_dir_path)
+        save_images(join_matrix_blockwise(cr_idpcm), img_id + "-CrDequantized", GREY_CMAP, plot_f, img_dir_path)
 
     timer = perf_counter()
     y_inverse_dct = apply_inverse_dct_blocks_optimized(y_dequantized)
@@ -234,47 +265,59 @@ def decoder(encoded_image_name, encoded_image_data, verbose=False, show_plots=Fa
     total_time += perf_counter() - timer
 
     if verbose:
-        print("Applied inverse DCT")
+        out(output_file, "Applied inverse DCT")
 
-    y_copy = y_inverse_dct
+    if show_plots:
+        save_images(y_inverse_dct, img_id + "-YIDCT", GREY_CMAP, None, img_dir_path)
+        save_images(cb_inverse_dct, img_id + "-CbIDCT", GREY_CMAP, None, img_dir_path)
+        save_images(cr_inverse_dct, img_id + "-CrIDCT", GREY_CMAP, None, img_dir_path)
+        save_images((calc_error_image(y_original, y_inverse_dct)), img_id + "YError", GREY_CMAP, None, img_dir_path)
 
     timer = perf_counter()
     cb_up_sampled, cr_up_sampled = up_sample(cb_inverse_dct, cr_inverse_dct, down_sample_variant,
                                              interpolation_type=cv2.INTER_AREA)
-
-    if show_plots:
-        show_images()
-
     total_time += perf_counter() - timer
 
     if verbose:
-        print("Applied up sampling using %s" % down_sample_variant)
+        out(output_file, "Applied up sampling using %s" % down_sample_variant)
+
+    if show_plots:
+        save_images(cb_up_sampled, img_id + "-CbUpSampled", GREY_CMAP, None, img_dir_path)
+        save_images(cr_up_sampled, img_id + "-CrUpSampled", GREY_CMAP, None, img_dir_path)
 
     timer = perf_counter()
     joined_channels_img = join_channels(y_inverse_dct, cb_up_sampled, cr_up_sampled)
     total_time += perf_counter() - timer
 
     if verbose:
-        print("Joined Y, Cb and Cr channels")
+        out(output_file, "Joined Y, Cb and Cr channels")
 
     timer = perf_counter()
     rgb_image = y_cb_cr_to_rgb(joined_channels_img, Y_CB_CR_MATRIX_INVERSE)
     total_time += perf_counter() - timer
 
     if verbose:
-        print("Converted YCbCr to RGB")
+        out(output_file, "Converted YCbCr to RGB")
+
+    if show_plots:
+        save_images(rgb_image, img_id + "-RGB", None, None, img_dir_path)
 
     timer = perf_counter()
     unpadded_image = inverse_padding(rgb_image, original_rows, original_cols)
     total_time += perf_counter() - timer
 
     if verbose:
-        print("Applied inverse padding")
+        out(output_file, "Applied inverse padding")
 
-    print("Elapsed decompression timer: %.3fms" % total_time)
-    print("----------------------------------\n")
+    if show_plots:
+        save_images(unpadded_image, img_id + "-Unpadded", None, None, img_dir_path)
 
-    show_images(unpadded_image, img_id.replace(":", "-") + " - Decompressed", None, None)
+    out(output_file, "Elapsed decompression time: %.3fms" % total_time)
+    out(output_file, "----------------------------------\n")
+
+    save_images(unpadded_image, img_id + "-Decompressed", None, None, img_dir_path)
     decoded_image = unpadded_image
 
-    return decoded_image, y_copy
+    output_file.close()
+
+    return decoded_image

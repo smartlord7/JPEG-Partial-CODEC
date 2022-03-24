@@ -10,15 +10,14 @@ Tiago Filipe Santa Ventura, 2019243695, uc2019243695@student.uc.pt
 Coimbra, 23rd March 2022
 ---------------------------------------------------------------------------"""
 
-from modules.jpeg import *
 from modules.jpeg_partial_codec import *
-from modules.metrics import calc_error_image, show_jpeg_metrics
+from modules.metrics import show_jpeg_metrics
 
 
 def read_config():
     config = dict()
 
-    quality_factor = input("Quality factor: ")
+    quality_factor = input("Quality factor(s): ")
     if not quality_factor:
         quality_factor = 75
     else:
@@ -49,7 +48,7 @@ def read_config():
         interpolation_type = None
     print(interpolation_type)
 
-    show_plots = input("Show plots?")
+    show_plots = input("Save plots?")
     if not show_plots:
         show_plots = False
     else:
@@ -58,9 +57,9 @@ def read_config():
 
     verbose = input("Verbose?")
     if not verbose:
-        verbose = True
-    else:
         verbose = False
+    else:
+        verbose = True
     print(verbose)
 
     config["quality_factor"] = quality_factor
@@ -73,11 +72,11 @@ def read_config():
     return config
 
 
-def codec_run(original_images, config, output_file):
+def codec_run(original_images, config):
     encoded_images = dict()
 
     for image_name in original_images.keys():
-        result = encoder(output_file, (image_name, original_images[image_name]),
+        result = encoder((image_name, original_images[image_name]),
                          config["down_sample_variant"], config["block_size"], config["quality_factor"], config["interpolation_type"],
                          show_plots=config["show_plots"], verbose=config["verbose"])
         encoded_images[image_name] = result
@@ -85,11 +84,9 @@ def codec_run(original_images, config, output_file):
     for encoded_image_name in encoded_images.keys():
         data = encoded_images[encoded_image_name]
         print("Decompressed image %s" % encoded_image_name)
-        result, y_new = decoder(encoded_image_name, data)
+        result = decoder(encoded_image_name, data, show_plots=config["show_plots"], verbose=config["verbose"])
         image_old = original_images[encoded_image_name]
         print("Distortion metrics")
-        if config["show_plots"]:
-            show_images((calc_error_image(data[5], y_new)), encoded_image_name + " - Error - Y channel", GREY_CMAP, None)
         show_jpeg_metrics(image_old, result)
         print("--------------------")
 
@@ -98,29 +95,19 @@ def main():
     """
     Main function
     """
-    cwd = os.getcwd()
-    orig_img_dir = cwd + ORIGINAL_IMAGE_DIRECTORY
-    comp_img_dir = cwd + COMPRESSED_IMAGE_DIRECTORY
 
     config = read_config()
 
-    original_images = read_images(orig_img_dir, ORIGINAL_IMAGE_EXTENSION)
-    if config["show_plots"]:
-        show_images(original_images, None, None, None)
-        jpeg_compress_images(orig_img_dir, ORIGINAL_IMAGE_EXTENSION, comp_img_dir, JPEG_QUALITY_RATES)
+    original_images = read_images(ORIGINAL_IMAGE_DIRECTORY, ORIGINAL_IMAGE_EXTENSION)
+    #jpeg_compress_images(orig_img_dir, ORIGINAL_IMAGE_EXTENSION, comp_img_dir, JPEG_QUALITY_RATES)
 
-    output_file_name = os.getcwd() + OUTPUT_TXT_PATH + "-" + \
-                                   str(config["quality_factor"]) + "-" + \
-                                   config["down_sample_variant"].replace(":", "-") + ".txt"
-
-    with open(output_file_name, "w") as output_file:
-        if type(config["quality_factor"]) == list:
-            for qual_factor in config["quality_factor"]:
-                inner_config = config.copy()
-                inner_config["quality_factor"] = int(qual_factor)
-                codec_run(original_images, inner_config, output_file)
-        else:
-            codec_run(original_images, config, output_file)
+    if type(config["quality_factor"]) == list:
+        for qual_factor in config["quality_factor"]:
+            inner_config = config.copy()
+            inner_config["quality_factor"] = int(qual_factor)
+            codec_run(original_images, inner_config)
+    else:
+        codec_run(original_images, config)
 
 
 if __name__ == '__main__':

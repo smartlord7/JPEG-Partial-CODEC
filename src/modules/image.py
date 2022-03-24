@@ -16,10 +16,8 @@ from PIL import Image
 import matplotlib.colors as clr
 from matplotlib import pyplot as plt
 
-OUTPUT_IMG_PATH = os.getcwd() + "\\resources\\img\\plots\\"
 
-
-def _show_image(image, name, cmap, func):
+def _save_image(image, name, cmap, func, directory):
     """
       Given one image,the title and a color map this function will show the image with the title and the applied colormap
       :param image: the image to show.
@@ -27,7 +25,7 @@ def _show_image(image, name, cmap, func):
       :param cmap: the color map to be applied.
       :param func: the function of the image.
     """
-    plt.figure()
+    f = plt.figure()
     if name:
         plt.title(name)
     if func:
@@ -36,15 +34,20 @@ def _show_image(image, name, cmap, func):
         plt.imshow(image, cmap)
 
     if name:
-        plt.savefig(OUTPUT_IMG_PATH + name + ".png")
+        plt.savefig(directory + "\\" + name + ".png")
     else:
-        plt.savefig(OUTPUT_IMG_PATH + "-.png")
-    plt.show()
+        plt.savefig(directory + "\\" + "-.png")
+
+    f.clear()
+    plt.close()
+    plt.cla()
+    plt.clf()
 
 
-def show_images(images, name, cmap, func):
+def save_images(images, name, cmap, func, directory=os.getcwd()):
     """
       Given one or more images,this function will show them in order
+      :param directory:
       :param images: the image(s) to show.
       :param name: the name of the image to show
       :param cmap: the color map to be applied.
@@ -54,12 +57,12 @@ def show_images(images, name, cmap, func):
 
     if t == dict:
         for image_name in images:
-            _show_image(images[image_name], image_name, cmap, func)
+            _save_image(images[image_name], image_name, cmap, func, directory)
     elif t == list:
         for image in images:
-            _show_image(image, name, cmap, func)
+            _save_image(image, name, cmap, func, directory)
     else:
-        _show_image(images, name, cmap, func)
+        _save_image(images, name, cmap, func, directory)
 
 
 def read_images(directory, ext):

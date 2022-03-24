@@ -9,6 +9,8 @@ Sancho Amaral Simões, 2019217590, uc2019217590@student.uc.pt
 Tiago Filipe Santa Ventura, 2019243695, uc2019243695@student.uc.pt
 Coimbra, 23rd March 2022
 ---------------------------------------------------------------------------"""
+import os
+import shutil
 
 import numpy as np
 
@@ -57,3 +59,8 @@ def float_to_uint8(matrix):
 def out(output_file, string):
     print(string)
     output_file.write(string + "\n")
+    
+
+def mkdir_if_not_exists(img_dir_path):
+    if not os.path.exists(img_dir_path):
+        os.mkdir(img_dir_path)
