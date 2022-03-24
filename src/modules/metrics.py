@@ -10,7 +10,8 @@ Tiago Filipe Santa Ventura, 2019243695, uc2019243695@student.uc.pt
 Coimbra, 23rd March 2022
 ---------------------------------------------------------------------------"""
 
-import numpy as np
+from modules.const import *
+from modules.entropy import *
 
 
 def calc_error_image(original_image, decompressed_image):
@@ -85,3 +86,21 @@ def show_jpeg_metrics(original_image, decompressed_image):
           calc_rmse(original_image, decompressed_image),
           calc_snr(original_image, decompressed_image),
           calc_psnr(original_image, decompressed_image)))
+
+
+def show_entropic_stats(name, arrays, channels, info):
+    i = 0
+
+    print("..............................")
+    for array in arrays:
+        l = array.shape[0] * array.shape[1]
+        array = np.ndarray.flatten(array)
+        plt.subplot(1, 3, i + 1)
+        hist = gen_histogram(array, 256)
+        entropy_val = entropy(hist, l)
+        print("Entropy %s - %s: %.2f" % (channels[i], info, entropy_val))
+        plot_histogram(ALPHABET, hist, "%s %s Histogram" % (name, channels[i]))
+        i += 1
+
+    plt.show()
+

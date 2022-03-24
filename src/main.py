@@ -9,9 +9,9 @@ Sancho Amaral Simões, 2019217590, uc2019217590@student.uc.pt
 Tiago Filipe Santa Ventura, 2019243695, uc2019243695@student.uc.pt
 Coimbra, 23rd March 2022
 ---------------------------------------------------------------------------"""
-
+from modules.entropy import *
+from modules.metrics import *
 from modules.jpeg_partial_codec import *
-from modules.metrics import show_jpeg_metrics
 
 
 def read_config():
@@ -97,7 +97,6 @@ def main():
     """
 
     config = read_config()
-
     original_images = read_images(ORIGINAL_IMAGE_DIRECTORY, ORIGINAL_IMAGE_EXTENSION)
     #jpeg_compress_images(orig_img_dir, ORIGINAL_IMAGE_EXTENSION, comp_img_dir, JPEG_QUALITY_RATES)
 

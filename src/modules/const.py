@@ -21,6 +21,7 @@ OUTPUT_TXT_DECODER_PATH = CWD + '\\resources\\txt\\output\\output_decoder\\'
 OUTPUT_IMG_ENCODER_PATH = CWD + '\\resources\\img\\output\\output_encoder\\'
 OUTPUT_IMG_DECODER_PATH = CWD + '\\resources\\img\\output\\output_decoder\\'
 
+ALPHABET = [i for i in range(0, 256)]
 JPEG_QUALITY_RATES = [25, 50, 75]
 JPEG_QUANTIZATION_Y = np.array([[16, 11, 10, 16,  24,  40,  51,  61],
                [12, 12, 14, 19,  26,  58,  60,  55],
