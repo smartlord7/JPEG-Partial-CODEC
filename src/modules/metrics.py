@@ -79,7 +79,7 @@ def show_jpeg_metrics(original_image, decompressed_image, output_file):
     :param original_image: The original image
     :param decompressed_image: The decompressed image
     """
-    out(output_file, "Distortion metrics"
+    out(output_file, "Distortion metrics\n"
           "MSE: %.5f \n"
           "RMSE: %.5f \n"
           "SNR: %.5f \n"
@@ -111,4 +111,3 @@ def calc_entropic_stats(name, arrays, channels, info, output_file, directory=os.
     out(output_file, "................................................")
 
     fig.savefig(directory + "\\" + name + info + "entropic.png")
-

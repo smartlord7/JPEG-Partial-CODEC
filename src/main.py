@@ -76,7 +76,7 @@ def codec_run(original_images, config):
 
     for image_name in original_images.keys():
         result = encoder((image_name, original_images[image_name]),
-                         config["down_sample_variant"], config["block_size"], config["quality_factor"], config["interpolation_type"],
+                         config["down_sample_variant"], config["block_size"], config["quality_factor"], interpolation_type=config["interpolation_type"],
                          show_plots=config["show_plots"], verbose=config["verbose"])
         encoded_images[image_name] = result
 

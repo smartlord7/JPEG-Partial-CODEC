@@ -116,7 +116,7 @@ def encoder(image_data, down_sample_variant, block_size, quality_factor,
     n_new = cb.shape[0] * cb.shape[1]
 
     if verbose:
-        out(output_file, "Down sampled Cb and Cr channels using %s - shape: %s - compression rate: %.2f%%" %
+        out(output_file, "Down sampled Cb and Cr channels using %s - shape: %s - compression ratio: %.2f%%" %
             (down_sample_variant, cb.shape, ((n - n_new) / n * 100)))
 
     if show_plots:
