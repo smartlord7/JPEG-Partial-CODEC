@@ -111,6 +111,8 @@ def calc_entropic_stats(name, arrays, channels, info, output_file, directory=os.
     out(output_file, "................................................")
     f.savefig(directory + "\\" + name + info + "entropic.png", dpi=100)
     f.clear()
-    plt.close()
+    plt.close(f)
     plt.cla()
     plt.clf()
+
+    del f

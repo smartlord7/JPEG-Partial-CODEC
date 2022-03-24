@@ -39,9 +39,11 @@ def _save_image(image: np.ndarray, name: str, cmap, func, directory: str):
         plt.savefig(directory + "\\" + "-.png")
 
     f.clear()
-    plt.close()
+    plt.close(f)
     plt.cla()
     plt.clf()
+
+    del f
 
 
 def save_images(images, name, cmap, func, directory=os.getcwd()):

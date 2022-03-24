@@ -106,27 +106,31 @@ def main():
 
     trials = 5
     min_side = 160
-    max_side = 16 * 500
+    max_side = 16 * 400
     step = 16 * 4
-    block_size = 16
+    block_size = 8
 
     times = run(trials, min_side, max_side, block_size, step)
     n = [i for i in range(min_side, max_side, step)]
 
     plt.figure()
-    plt.title("Block DCT: range loop vs loop w/r_ vs numpy/astropy")
+    plt.xlabel("Image side (pixels)")
+    plt.ylabel("Execution time (s)")
+    plt.title("DCT in blocks %dx%d: range loop vs r_ loop vs numpy/astropy" % (block_size, block_size))
     plt.plot(n, times[0])
     plt.plot(n, times[1])
     plt.plot(n, times[2])
-    plt.legend(["range loop", "loop w/r_", "numpy/astropy"])
+    plt.legend(["range loop", "r_ loop", "numpy/astropy"])
     plt.show()
 
     plt.figure()
-    plt.title("Block IDCT: range loop vs loop w/r_ vs numpy")
+    plt.xlabel("Image side (pixels)")
+    plt.ylabel("Execution time (s)")
+    plt.title("IDCT in blocks %dx%d: range loop vs r_ loop vs numpy/astropy" % (block_size, block_size))
     plt.plot(n, times[3])
     plt.plot(n, times[4])
     plt.plot(n, times[5])
-    plt.legend(["range loop", "loop w", "numpy"])
+    plt.legend(["range loop", "r_ loop", "numpy/astropy"])
     plt.show()
 
 

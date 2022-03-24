@@ -18,10 +18,10 @@ from scipy.fftpack import dct, idct
 
 def split_matrix_blockwise(array: np.ndarray, block_size: int):
     """
-    Split a matrix into sub-matrices.
+    Splits a matrix into sub-matrices.
     :param array: the matrix to split
     :param block_size: the block size to reshape
-    :return: the reshaped matrix.
+    :return: the split matrix in blocks of block_size size.
     """
 
     return reshape_as_blocks(array, block_size)
@@ -29,9 +29,9 @@ def split_matrix_blockwise(array: np.ndarray, block_size: int):
 
 def join_matrix_blockwise(blocks: np.ndarray):
     """
-    Joins submatrixes into an matrix
-    :param blocks: the blocks to join in the matrix
-    :return: the concatenated matrix
+    Joins sub-matrices into a matrix
+    :param blocks: the sub-matrices to join
+    :return: the joined matrix
     """
 
     return np.concatenate(np.concatenate(blocks, axis=1), axis=1)
@@ -39,9 +39,9 @@ def join_matrix_blockwise(blocks: np.ndarray):
 
 def apply_dct_blocks_optimized(im: np.ndarray, block_size: int):
     """
-    Applies DCT in blocks (main function)
-    :param im: the image to apply the dct blocks
-    :param block_size: the block size to be applied
+    Applies DCT in blocks using an Astropy function
+    :param im: the image to which the DCT in blocks will be applied
+    :param block_size: the size of each block that will be submitted to the DCT
     :return: the dct blocks.
     """
     blocks = split_matrix_blockwise(im, block_size)
@@ -52,9 +52,9 @@ def apply_dct_blocks_optimized(im: np.ndarray, block_size: int):
 
 def apply_inverse_dct_blocks_optimized(blocks: np.ndarray):
     """
-    Applies inverse DCT in blocks (main function)
-    :param blocks: the blocks to be applied
-    :return: the image
+    Applies inverse DCT in blocks
+    :param blocks: the image to which the DCT in blocks will be applied
+    :return: the IDCT blocks
     """
     idct_blocks = idct(idct(blocks, axis=2, norm="ortho"), axis=3, norm="ortho")
     image = join_matrix_blockwise(idct_blocks)
@@ -64,10 +64,10 @@ def apply_inverse_dct_blocks_optimized(blocks: np.ndarray):
 
 def apply_dct_blocks_r_(im: np.ndarray, block_size: int):
     """
-    Applies DCT in blocks (test function w/r)
-    :param im: the image to apply the dct blocks
-    :param block_size: the block size to be applied
-    :return: the dct image.
+    Applies DCT in blocks (test function w/r_)
+    :param im: the image to which the DCT in blocks will be applied
+    :param block_size: the size of each block that will be submitted to the DCT
+    :return: the DCT image.
     """
     imsize = im.shape
     dct_image = np.zeros(imsize)
@@ -83,9 +83,9 @@ def apply_dct_blocks_r_(im: np.ndarray, block_size: int):
 def apply_inverse_dct_blocks_r_(dct_image: np.ndarray, block_size: int):
     """
     Applies inverse DCT in blocks (test function w/r)
-    :param dct_image: the dct image to apply the blocks
-    :param block_size: the block size to be applied
-    :return: the image.
+    :param dct_image: the blocks to which the IDCT will be applied
+    :param block_size: the size of each block that will be submitted to the IDCT
+    :return: the original image.
     """
     imsize = dct_image.shape
     image = np.zeros(imsize)
@@ -100,10 +100,10 @@ def apply_inverse_dct_blocks_r_(dct_image: np.ndarray, block_size: int):
 
 def apply_dct_blocks_loops(im: np.ndarray, block_size: int):
     """
-    Applies DCT in blocks (w/loops)
-    :param im: the image to apply the dct blocks
-    :param block_size: the block size to be applied
-    :return: the dct image.
+    Applies DCT in blocks (w/ raw loops)
+    :param im: the blocks to which the DCT will be applied
+    :param block_size: the size of each block that will be submitted to the DCT
+    :return: the DCT image.
     """
     imsize = im.shape
     dct_image = np.zeros(imsize)
@@ -119,9 +119,9 @@ def apply_dct_blocks_loops(im: np.ndarray, block_size: int):
 def apply_inverse_dct_blocks_loops(dct_image: np.ndarray, block_size: int):
     """
     Applies inverse DCT in blocks (w/loops)
-    :param dct_image: the dct image to apply the blocks
-    :param block_size: the block size to be applied
-    :return: the image.
+    :param dct_image: the image to which the IDCT in blocks will be applied
+    :param block_size: the size of each block that will be submitted to the DCT
+    :return: the original image.
     """
     imsize = dct_image.shape
     image = np.zeros(imsize)
@@ -136,8 +136,8 @@ def apply_inverse_dct_blocks_loops(dct_image: np.ndarray, block_size: int):
 
 def apply_dct(matrix: np.ndarray):
     """
-    Applies DCT in the matrix
-    :param matrix: the matrix where the DCT will be applied
+    Applies DCT to a matrix
+    :param matrix: the matrix to which the DCT will be applied
     :return: the matrix with the DCT applied
     """
     matrix_dct = dct(dct(matrix, norm="ortho").T, norm="ortho").T
@@ -148,7 +148,7 @@ def apply_dct(matrix: np.ndarray):
 def apply_inverse_dct(matrix_dct: np.ndarray):
     """
     Applies inverse DCT in the matrix
-    :param matrix_dct: the matrix where the IDCT will be applied
+    :param matrix_dct: the matrix to which the IDCT  will be applied
     :return: the matrix with the IDCT applied
     """
     matrix_idct = idct(idct(matrix_dct, norm="ortho").T, norm="ortho").T
