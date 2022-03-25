@@ -297,7 +297,7 @@ def decoder(encoded_image_name: str, encoded_image_data, verbose: bool = False, 
         save_images(y_inverse_dct, img_id + "-YIDCT", GREY_CMAP, None, img_dir_path)
         save_images(cb_inverse_dct, img_id + "-CbIDCT", GREY_CMAP, None, img_dir_path)
         save_images(cr_inverse_dct, img_id + "-CrIDCT", GREY_CMAP, None, img_dir_path)
-        save_images((calc_error_image(y_original, y_inverse_dct)), img_id + "YError", GREY_CMAP, None, img_dir_path)
+        save_images((calc_error_matrix(y_original, y_inverse_dct)), img_id + "YError", GREY_CMAP, None, img_dir_path)
 
     timer = perf_counter()
     cb_up_sampled, cr_up_sampled = up_sample(cb_inverse_dct, cr_inverse_dct, down_sample_variant,

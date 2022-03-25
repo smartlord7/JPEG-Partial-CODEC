@@ -10,85 +10,84 @@ Tiago Filipe Santa Ventura, 2019243695, uc2019243695@student.uc.pt
 Coimbra, 23rd March 2022
 ---------------------------------------------------------------------------"""
 
-
 from modules.const import *
 from modules.entropy import *
 from modules.util import out
 
 
-def calc_error_image(original_image, decompressed_image):
+def calc_error_matrix(matrix: np.ndarray, other_matrix: np.ndarray):
     """
-    Function that calculates the image error:
-    :param original_image: The original image
-    :param decompressed_image: The decompressed image
-    :return: the calculated error of the image
+    Function that calculates the matrix error.
+    :param matrix: The original matrix.
+    :param other_matrix: The other matrix.
+    :return: the calculated error of the matrix.
     """
-    return np.abs(original_image - decompressed_image)
+    return np.abs(matrix - other_matrix)
 
 
-def calc_mse(original_image, decompressed_image):
+def calc_mse(matrix: np.ndarray, other_matrix: np.ndarray):
     """
-    Function to calculate the MSE:
-    :param original_image: The original image
-    :param decompressed_image: The decompressed image
-    :return: the MSE of the image
+    Function that calculate the Mean Square Deviation.
+    :param matrix: The original matrix.
+    :param other_matrix: The other matrix.
+    :return: the MSE of the matrix.
     """
-    n = original_image.shape[0] * original_image.shape[1]
+    n = matrix.shape[0] * matrix.shape[1]
 
-    return np.sum((calc_error_image(original_image.astype(np.float), decompressed_image.astype(np.float)) ** 2)) / n
+    return np.sum((calc_error_matrix(matrix.astype(np.float), other_matrix.astype(np.float)) ** 2)) / n
 
 
-def calc_rmse(original_image, decompressed_image):
+def calc_rmse(matrix: np.ndarray, other_matrix: np.ndarray):
     """
-    Function to calculate the RMSE:
-    :param original_image: The original image
-    :param decompressed_image: The decompressed image
-    :return: the RMSE of the image
+    Function that calculates the Root Mean Square Deviation.
+    :param matrix: the original matrix.
+    :param other_matrix: the other matrix.
+    :return: the RMSE of the matrix.
     """
-    return calc_mse(original_image, decompressed_image) ** (1/2)
+    return calc_mse(matrix, other_matrix) ** (1 / 2)
 
 
-def calc_snr(original_image, decompressed_image):
+def calc_snr(matrix: np.ndarray, other_matrix: np.ndarray):
     """
-    Function to calculate the SNR:
-    :param original_image: The original image
-    :param decompressed_image: The decompressed image
-    :return: the SNR of the image
+    Function that calculate the Signal to Noise Ration.
+    :param matrix: The original matrix.
+    :param other_matrix: The other matrix.
+    :return: the SNR of the matrix.
     """
 
-    n = original_image.shape[0] * original_image.shape[1]
-    power = np.sum((original_image.astype(np.float) ** 2)) / n
+    n = matrix.shape[0] * matrix.shape[1]
+    power = np.sum((matrix.astype(np.float) ** 2)) / n
 
-    return 10 * np.log10(power / calc_mse(original_image, decompressed_image))
+    return 10 * np.log10(power / calc_mse(matrix, other_matrix))
 
 
-def calc_psnr(original_image, decompressed_image):
+def calc_psnr(matrix: np.ndarray, other_matrix: np.ndarray):
     """
     Function to calculate the PSNR:
-    :param original_image: The original image
-    :param decompressed_image: The decompressed image
-    :return: the PSNR of the image
+    :param matrix: The original matrix
+    :param other_matrix: The other matrix
+    :return: the PSNR of the matrix
     """
-    max_val = np.max(original_image.astype(np.float)) ** 2
+    max_val = np.max(matrix.astype(np.float)) ** 2
 
-    return 10 * np.log10(max_val / calc_mse(original_image, decompressed_image))
+    return 10 * np.log10(max_val / calc_mse(matrix, other_matrix))
 
 
-def show_jpeg_metrics(original_image, decompressed_image, output_file):
+def show_jpeg_metrics(matrix: np.ndarray, other_matrix: np.ndarray, output_file):
     """
     Function to show the calculated metrics
-    :param original_image: The original image
-    :param decompressed_image: The decompressed image
+    :param matrix: The original matrix
+    :param other_matrix: The other matrix
     """
     out(output_file, "Distortion metrics\n"
-          "MSE: %.5f \n"
-          "RMSE: %.5f \n"
-          "SNR: %.5f \n"
-          "PSNR: %.5f" %
-          (calc_mse(original_image, decompressed_image),
-          calc_rmse(original_image, decompressed_image),
-          calc_snr(original_image, decompressed_image),
-          calc_psnr(original_image, decompressed_image)))
+                     "MSE: %.5f \n"
+                     "RMSE: %.5f \n"
+                     "SNR: %.5f \n"
+                     "PSNR: %.5f" %
+        (calc_mse(matrix, other_matrix),
+         calc_rmse(matrix, other_matrix),
+         calc_snr(matrix, other_matrix),
+         calc_psnr(matrix, other_matrix)))
 
 
 def calc_entropic_stats(name, arrays, channels, info, output_file, directory=os.getcwd()):
