@@ -10,6 +10,7 @@ Tiago Filipe Santa Ventura, 2019243695, uc2019243695@student.uc.pt
 Coimbra, 23rd March 2022
 ---------------------------------------------------------------------------"""
 
+
 from modules.const import *
 from modules.entropy import *
 from modules.util import out

@@ -18,6 +18,9 @@ from modules.image import *
 
 CWD = os.getcwd()
 ORIGINAL_IMAGE_EXTENSION = '.bmp'
+OUTPUT_LOG_EXTENSION = '.txt'
+OUTPUT_LOG_COMPRESSION_SUFFIX = 'COMP'
+OUTPUT_LOG_DECOMPRESSION_SUFFIX = 'DECOMP'
 ORIGINAL_IMAGE_DIRECTORY = CWD + '\\resources\\img\\dataset\\'
 COMPRESSED_IMAGE_DIRECTORY = CWD + '\\resources\\img\\jpeg_compressed_img'
 OUTPUT_TXT_ENCODER_PATH = CWD + '\\resources\\txt\\output\\output_encoder\\'

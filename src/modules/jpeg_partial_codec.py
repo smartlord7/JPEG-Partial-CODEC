@@ -10,6 +10,7 @@ Tiago Filipe Santa Ventura, 2019243695, uc2019243695@student.uc.pt
 Coimbra, 23rd March 2022
 ---------------------------------------------------------------------------"""
 
+
 from time import perf_counter
 from modules.util import *
 from modules.metrics import *
@@ -24,15 +25,15 @@ from modules.jpeg_pipeline.quantization import *
 def encoder(image_data: tuple, down_sample_variant: str, block_size: int, quality_factor: float,
             interpolation_type: int = cv2.INTER_CUBIC, save_plots: bool = False, verbose: bool = False):
     """
-                                       Enconder function.
-                                       :param verbose:
-                                       :param interpolation_type:
-                                       :param image_data: the image to encode.
-                                       :param down_sample_variant: The variant of the down sample
-                                       :param block_size: the size of the block
-                                       :param quality_factor: the quality factor to encode
-                                       :param save_plots: flag that enables plotting.
-                                       :return: the encoded image and the y copy.
+    Enconder function.
+    :param image_data: a tuple containing the target image data.
+    :param quality_factor: the quality factor to use (from 0 to 100).
+    :param down_sample_variant: The variant of the down sample (4:2:2, 4:2:0, 4:4:4, ...).
+    :param block_size: the size of the block.
+    :param interpolation_type: the type of interpolation to use (e.g. LINEAR; CUBIC; AREA).
+    :param save_plots: flag that enables plotting.
+    :param verbose: flag that enables the log output.
+    :return: the encoded image and the y copy.
     """
     image_name = image_data[0]
     image_matrix = image_data[1]
@@ -44,9 +45,9 @@ def encoder(image_data: tuple, down_sample_variant: str, block_size: int, qualit
         block_size) + "I" + str(interpolation_type)
 
     mkdir_if_not_exists(OUTPUT_TXT_ENCODER_PATH)
-    output_file_path = OUTPUT_TXT_ENCODER_PATH + img_id + ".txt"
+    output_file_path = OUTPUT_TXT_ENCODER_PATH + img_id + OUTPUT_LOG_EXTENSION
     output_file = open(output_file_path, "w")
-    img_dir_path = OUTPUT_IMG_ENCODER_PATH + img_id + "COMP"
+    img_dir_path = OUTPUT_IMG_ENCODER_PATH + img_id + OUTPUT_LOG_COMPRESSION_SUFFIX
     mkdir_if_not_exists(img_dir_path)
 
     out(output_file, "------------------------------------------------")
@@ -242,9 +243,9 @@ def decoder(encoded_image_name: str, encoded_image_data, verbose: bool = False, 
         block_size) + "I" + str(interpolation_type)
 
     mkdir_if_not_exists(OUTPUT_TXT_DECODER_PATH)
-    output_file_path = OUTPUT_TXT_DECODER_PATH + img_id + ".txt"
+    output_file_path = OUTPUT_TXT_DECODER_PATH + img_id + OUTPUT_LOG_EXTENSION
     output_file = open(output_file_path, "w")
-    img_dir_path = OUTPUT_IMG_DECODER_PATH + img_id + "DECOMP"
+    img_dir_path = OUTPUT_IMG_DECODER_PATH + img_id + OUTPUT_LOG_DECOMPRESSION_SUFFIX
     mkdir_if_not_exists(img_dir_path)
 
     out(output_file, "----------------------------------")
