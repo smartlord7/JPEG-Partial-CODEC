@@ -10,16 +10,17 @@ Tiago Filipe Santa Ventura, 2019243695, uc2019243695@student.uc.pt
 Coimbra, 23rd March 2022
 ---------------------------------------------------------------------------"""
 
+
 from matplotlib import pyplot as plt
 from modules.image import read_images2
 
 
 def jpeg_compress_images(directory: str, ext: str, out_dir: str, quality_rates):
     """
-    Compresses images.
-    :param directory: images directory.
-    :param ext: images extension.
-    :param out_dir: output directory.
+    Function that uses PIL to JPEG compress the .bmp contained in a certain directory.
+    :param directory: the images' directory.
+    :param ext: the images' extension.
+    :param out_dir: the output directory.
     :param quality_rates: the quality rates of the compression.
     """
     images = read_images2(directory, ext)
