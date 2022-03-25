@@ -10,9 +10,10 @@ Tiago Filipe Santa Ventura, 2019243695, uc2019243695@student.uc.pt
 Coimbra, 23rd March 2022
 ---------------------------------------------------------------------------"""
 
+
 import numpy as np
-from astropy.nddata import reshape_as_blocks
 from numpy import r_
+from astropy.nddata import reshape_as_blocks
 from scipy.fftpack import dct, idct
 
 

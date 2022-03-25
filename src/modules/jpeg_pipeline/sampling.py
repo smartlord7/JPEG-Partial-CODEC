@@ -10,15 +10,16 @@ Tiago Filipe Santa Ventura, 2019243695, uc2019243695@student.uc.pt
 Coimbra, 23rd March 2022
 ---------------------------------------------------------------------------"""
 
-import numpy as np
+
 import cv2
+import numpy as np
 
 
 def parse_down_sample_variant(variant: str):
     """
-    Function that parses the down sample variant
-    :param variant: the downsample variant
-    :return: the Down sampled cb and cr factor
+    Function that parses the down sample variant.
+    :param variant: the down-sample variant.
+    :return: the Down sampled cb and cr factor.
     """
     variant = variant.split(":")
     y_fac = int(variant[0])
@@ -31,12 +32,12 @@ def parse_down_sample_variant(variant: str):
 
 def down_sample(cb: np.ndarray, cr: np.ndarray, variant: str, interpolation_type: int = None):
     """
-    Function to down sample.
-    :param cb: CB channel.
-    :param cr: CR channel.
-    :param variant: Down sampling variant.
-    :param interpolation_type: the chosen interpolation.
-    :return: the Down sampled channels.
+    Function that down samples Cb and Cr channels.
+    :param cb: the CB channel.
+    :param cr: the CR channel.
+    :param variant: the down sampling variant to use (e.g. 4:2:2, 4:2:0, 4:4:4, ...).
+    :param interpolation_type: the chosen interpolation (e.g. LINEAR; CUBIC; AREA).
+    :return: the down-sampled channels.
     """
 
     cb_fac, cr_fac, f = parse_down_sample_variant(variant)
@@ -69,12 +70,12 @@ def down_sample(cb: np.ndarray, cr: np.ndarray, variant: str, interpolation_type
 
 def up_sample(cb: np.ndarray, cr: np.ndarray, variant: str, interpolation_type: int = None):
     """
-    Function to up sample.
-    :param cb: CB channel.
-    :param cr: CR channel.
-    :param variant: Down sampling variant.
-    :param interpolation_type: the chosen interpolation.
-    :return: the upsampled channels.
+    Function that up-samples Cb and Cr channels.
+    :param cb: the Cb channel.
+    :param cr: the Cr channel.
+    :param variant: the down-sampling variant used (e.g. 4:2:2, 4:2:0, 4:4:4, ...).
+    :param interpolation_type: the chosen interpolation (e.g. LINEAR; CUBIC; AREA).
+    :return: the up-sampled channels.
     """
 
     variant = variant.split(":")

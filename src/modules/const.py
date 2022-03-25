@@ -10,7 +10,11 @@ Tiago Filipe Santa Ventura, 2019243695, uc2019243695@student.uc.pt
 Coimbra, 23rd March 2022
 ---------------------------------------------------------------------------"""
 
+
 from modules.image import *
+
+
+# region Const
 
 CWD = os.getcwd()
 ORIGINAL_IMAGE_EXTENSION = '.bmp'
@@ -53,3 +57,4 @@ RED_CMAP = generate_linear_colormap(RED_CMAP_LIST)
 GREEN_CMAP = generate_linear_colormap(GREEN_CMAP_LIST)
 BLUE_CMAP = generate_linear_colormap(BLUE_CMAP_LIST)
 
+# endregion Const
