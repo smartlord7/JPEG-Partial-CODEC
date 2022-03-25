@@ -31,7 +31,7 @@ def apply_dpcm_decoding(blocks):
     """
     Function that applies the DCPM decoding
     :param blocks: number of blocks to be applied
-    :return: the blocks without DPCM
+    :return: the reconstructed blocks without
     """
     dc_coefficients = np.ravel(blocks[:, :, 0, 0])
     dc_coefficients = np.cumsum(dc_coefficients)
