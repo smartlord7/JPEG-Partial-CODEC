@@ -15,6 +15,8 @@ from matplotlib import pyplot as plt
 from modules.image import read_images2
 
 
+# region Public Methods
+
 def jpeg_compress_images(directory: str, ext: str, out_dir: str, quality_rates):
     """
     Function that uses PIL to JPEG compress the .bmp contained in a certain directory.
@@ -42,3 +44,5 @@ def jpeg_compress_images(directory: str, ext: str, out_dir: str, quality_rates):
         i += 1
 
     plt.show()
+
+# endregion Public Methods

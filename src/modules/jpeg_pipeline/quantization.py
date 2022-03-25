@@ -15,6 +15,8 @@ import cv2
 import numpy as np
 
 
+# region Public Methods
+
 def get_scale_factor(quality_factor: float):
     """
     Function that retrieves the scale factor based on quality factor.
@@ -78,3 +80,5 @@ def apply_inverse_quantization(matrix: np.ndarray, quality_factor: float, quanti
                            interpolation=cv2.INTER_CUBIC)
 
     return matrix * resized_q
+
+# endregion Public Methods

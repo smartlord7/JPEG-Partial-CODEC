@@ -16,6 +16,7 @@ from numpy import r_
 from astropy.nddata import reshape_as_blocks
 from scipy.fftpack import dct, idct
 
+# region Public Methods
 
 def split_matrix_blockwise(array: np.ndarray, block_size: int):
     """
@@ -164,3 +165,5 @@ def plot_f(matrix: np.ndarray):
     :return: the transformed matrix.
     """
     return np.log2(np.abs(matrix) + 0.0001)
+
+# endregion Public Methods

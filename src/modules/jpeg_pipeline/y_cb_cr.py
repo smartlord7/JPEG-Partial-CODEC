@@ -15,6 +15,8 @@ import numpy as np
 from modules.util import float_to_uint8
 
 
+# region Public Methods
+
 def rgb_to_y_cb_cr(rgb: np.ndarray, y_cb_cr_matrix: np.ndarray):
     """
     Function that Converts RGB to YCbCr.
@@ -40,3 +42,5 @@ def y_cb_cr_to_rgb(y_cb_cr: np.ndarray, y_cb_cr_inverse_matrix: np.ndarray):
     rgb = float_to_uint8(rgb)
 
     return rgb
+
+# endregion Public Methods

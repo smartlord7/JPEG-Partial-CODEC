@@ -10,8 +10,11 @@ Tiago Filipe Santa Ventura, 2019243695, uc2019243695@student.uc.pt
 Coimbra, 23rd March 2022
 ---------------------------------------------------------------------------"""
 
+
 from modules.jpeg_partial_codec import *
 
+
+# region Public Methods
 
 def read_config():
     config = dict()
@@ -115,6 +118,8 @@ def main():
                     inner_config["block_size"] = int(b_size)
                     inner_config["interpolation_type"] = int(interp_type)
                     codec_run(original_images, inner_config)
+
+# endregion Public Methods
 
 
 if __name__ == '__main__':

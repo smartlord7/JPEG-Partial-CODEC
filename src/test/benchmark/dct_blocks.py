@@ -16,6 +16,9 @@ import matplotlib.pyplot as plt
 from modules.jpeg_pipeline.dct import *
 
 
+# region Public Methods
+
+
 def run(trials: int, min_side: int, max_side: int, block_size: int, step: int):
     """
     Function to run and calculate the time of the DCT.

@@ -14,6 +14,8 @@ Coimbra, 23rd March 2022
 import numpy as np
 
 
+# region Public Methods
+
 def apply_dpcm_encoding(blocks):
     """
     Function that applies the DCPM encoding.
@@ -40,3 +42,5 @@ def apply_dpcm_decoding(blocks):
     blocks[:, :, 0, 0] = dc_coefficients
 
     return blocks
+
+# endregion Public Methods

@@ -22,6 +22,8 @@ from modules.jpeg_pipeline.sampling import *
 from modules.jpeg_pipeline.quantization import *
 
 
+# region Public Methods
+
 def encoder(image_data: tuple, down_sample_variant: str, block_size: int, quality_factor: float,
             interpolation_type: int = cv2.INTER_CUBIC, save_plots: bool = False, verbose: bool = False):
     """
@@ -223,12 +225,12 @@ def encoder(image_data: tuple, down_sample_variant: str, block_size: int, qualit
 
 def decoder(encoded_image_name: str, encoded_image_data, verbose: bool = False, save_plots: bool = False):
     """
-                                           Decode function.
-                                           :param encoded_image_name:
-                                           :param verbose:
-                                           :param save_plots:
-                                           :param encoded_image_data: the image to decode.
-                                           :return: the decoded image and the y copy error.
+    Decode function. Function that decodes a given image.
+    :param encoded_image_name: the name of the image to be decoded.
+    :param verbose: flag that enables the log output.
+    :param save_plots: flag that enables the image plotting.
+    :param encoded_image_data: the image to decode.
+    :return: the decoded image and the Y channel copy error.
     """
     encoded_image = encoded_image_data[0]
     original_rows = encoded_image_data[1]
@@ -345,3 +347,5 @@ def decoder(encoded_image_name: str, encoded_image_data, verbose: bool = False, 
     decoded_image = unpadded_image
 
     return decoded_image, output_file
+
+# endregion Public Methods

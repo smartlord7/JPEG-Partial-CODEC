@@ -17,6 +17,8 @@ import matplotlib.colors as clr
 from matplotlib import pyplot as plt
 
 
+# region Public Methods
+
 def _save_image(image: np.ndarray, name: str, cmap, func, directory: str):
     """
     Given one image,the title and a color map this function will show the image with the title and the applied
@@ -122,3 +124,5 @@ def image_equals(original_image, decoded_image):
     :return: if the image is equal or no.
     """
     return np.allclose(original_image, decoded_image)
+
+# endregion Public Methods

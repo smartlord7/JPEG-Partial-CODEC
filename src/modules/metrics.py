@@ -15,6 +15,8 @@ from modules.entropy import *
 from modules.util import out
 
 
+# region Public Methods
+
 def calc_error_matrix(matrix: np.ndarray, other_matrix: np.ndarray):
     """
     Function that calculates the matrix error.
@@ -116,3 +118,5 @@ def calc_entropic_stats(name, arrays, channels, info, output_file, directory=os.
     plt.clf()
 
     del f
+
+# endregion Public Methods

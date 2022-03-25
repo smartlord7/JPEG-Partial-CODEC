@@ -15,8 +15,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-# region Public Functions
-
+# region Public Methods
 
 def gen_alphabet(data):
     """
@@ -161,4 +160,4 @@ def plot_histogram_generic(histogram, title, display_keys=True, ticks_size=5):
     plt.bar(keys, values)
     plt.show()
 
-# endregion Public Functions
+# endregion Public Methods

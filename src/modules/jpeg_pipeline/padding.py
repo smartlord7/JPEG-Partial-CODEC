@@ -15,6 +15,8 @@ import cv2
 import numpy as np
 
 
+# region Public Methods
+
 def apply_padding(matrix: np.ndarray, wanted_rows: int, wanted_cols: int, interpolation_type: int = None):
     """
     Applies padding to the matrix.
@@ -84,3 +86,5 @@ def inverse_padding(padded_matrix: np.ndarray, original_rows: int, original_cols
             padded_matrix = np.delete(padded_matrix, cols_to_delete, axis=1)
 
         return padded_matrix
+
+# endregion Public Methods

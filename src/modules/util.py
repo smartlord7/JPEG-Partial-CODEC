@@ -15,6 +15,8 @@ import os
 import numpy as np
 
 
+# region Public Methods
+
 def separate_channels(img: np.ndarray):
     """
     Separates the rgb channels of an image.
@@ -64,7 +66,7 @@ def out(output_file, string):
     """
     print(string)
     output_file.write(string + "\n")
-    
+
 
 def mkdir_if_not_exists(path):
     """
@@ -73,3 +75,5 @@ def mkdir_if_not_exists(path):
     """
     if not os.path.exists(path):
         os.mkdir(path)
+
+# endregion Public Methods
