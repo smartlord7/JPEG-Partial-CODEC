@@ -1,4 +1,4 @@
-"""------------DESTRUCTIVE COMPRESSION OF matrix - PARTIAL JPEG CODEC------------
+"""------------DESTRUCTIVE COMPRESSION OF INAGE - PARTIAL JPEG CODEC------------
 University of Coimbra
 Degree in Computer Science and Engineering
 Multimedia

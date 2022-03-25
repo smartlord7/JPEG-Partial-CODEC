@@ -15,9 +15,9 @@ import numpy as np
 
 def get_scale_factor(quality_factor: float):
     """
-    Function that retrieves the scale factor of the image.
-    :param quality_factor: the quality factor of the image.
-    :return: the scale factor of the image.
+    Function that retrieves the scale factor based on quality factor.
+    :param quality_factor: the quality factor from 0 to 100.
+    :return: the scale factor.
     """
     if quality_factor >= 50:
         return (100 - quality_factor) / 50
@@ -27,10 +27,10 @@ def get_scale_factor(quality_factor: float):
 
 def get_scaled_quantization_matrix(quality_factor: float, quantization_matrix: np.ndarray):
     """
-        Function that retrieves the scaled quantization matrix.
-        :param quality_factor: the quality factor of the image.
-        :param quantization_matrix: the quantization matrix.
-        :return: the final quantization matrix.
+    Function that retrieves the scaled quantization matrix.
+    :param quality_factor: the quality factor of the matrix.
+    :param quantization_matrix: the quantization matrix.
+    :return: the final quantization matrix.
     """
     scale_factor = get_scale_factor(quality_factor)
 
@@ -46,11 +46,11 @@ def get_scaled_quantization_matrix(quality_factor: float, quantization_matrix: n
 
 def apply_quantization(matrix: np.ndarray, quality_factor: float, quantization_matrix: np.ndarray):
     """
-    Function to apply quantization
-    :param matrix: matrix to apply quantization
-    :param quality_factor: the quality factor to be applied
-    :param quantization_matrix: the quantization matrix
-    :return: the quantizated original matrix.
+    Function to apply quantization.
+    :param matrix: matrix to apply quantization.
+    :param quality_factor: the quality factor to be applied.
+    :param quantization_matrix: the quantization matrix.
+    :return: the quantized original matrix.
     """
 
     if matrix.shape[2] == 8:
@@ -65,10 +65,10 @@ def apply_quantization(matrix: np.ndarray, quality_factor: float, quantization_m
 
 def apply_inverse_quantization(matrix: np.ndarray, quality_factor: float, quantization_matrix: np.ndarray):
     """
-    Function to apply inverse quantization
-    :param matrix: matrix to apply quantization
-    :param quality_factor: the quality factor to be applied
-    :param quantization_matrix: the quantization matrix
+    Function to apply inverse quantization.
+    :param matrix: matrix to apply quantization.
+    :param quality_factor: the quality factor to be applied.
+    :param quantization_matrix: the quantization matrix.
     :return: the original matrix.
     """
     resized_q = cv2.resize(get_scaled_quantization_matrix(quality_factor, quantization_matrix),
